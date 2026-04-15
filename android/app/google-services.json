@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "998918249131",
+    "firebase_url": "https://numismatic-e934f-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "numismatic-e934f",
+    "storage_bucket": "numismatic-e934f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998918249131:android:f5011150d7b2221241f5ee",
+        "android_client_info": {
+          "package_name": "com.example.el_raco_de_la_numismatica"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "998918249131-nab7snodin8a85jf6t9i3j6j51betfn5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLzG7CV4lB21bQgokIDVmCFg7tPacIROk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "998918249131-nab7snodin8a85jf6t9i3j6j51betfn5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998918249131:android:6ccb62c15620e11f41f5ee",
+        "android_client_info": {
+          "package_name": "com.example.numista"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "998918249131-nab7snodin8a85jf6t9i3j6j51betfn5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLzG7CV4lB21bQgokIDVmCFg7tPacIROk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "998918249131-nab7snodin8a85jf6t9i3j6j51betfn5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
