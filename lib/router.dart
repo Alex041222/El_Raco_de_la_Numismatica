@@ -15,28 +15,51 @@ import 'screens/chat/chat_screen.dart';
 import 'screens/perfil/perfil_screen.dart';
 import 'screens/perfil/editar_perfil_screen.dart';
 import 'screens/vendedores/vendedores_recomendados_screen.dart';
+
 GoRouter createRouter(BuildContext context) {
   return GoRouter(
-    // Ruta inicial de la app
     initialLocation: '/login',
+    // IMPORTANTE: Esto vincula el router con los cambios de AuthProvider
+    refreshListenable: Provider.of<AuthProvider>(context, listen: false),
 
-    // Redirección automática según el estado de autenticación
     redirect: (context, state) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final estaLogueado = authProvider.estaLogueado;
+
+      // Si el AuthProvider aún está comprobando la sesión inicial de Firebase,
+      // no hacemos ninguna redirección todavía para evitar saltos raros.
+      if (authProvider.cargandoInicial) return null;
+
+      final estaLogueado = authProvider.usuarioFirebase != null;
+      final tienePerfil = authProvider.usuarioPerfil != null;
+
       final enLogin = state.matchedLocation == '/login';
       final enRegister = state.matchedLocation == '/register';
       final enCompletarPerfil = state.matchedLocation == '/completar-perfil';
 
-      // Si no está logueado y no está en login o register, redirige a login
-      if (!estaLogueado && !enLogin && !enRegister) return '/login';
+      // 1. SI NO ESTÁ LOGUEADO
+      if (!estaLogueado) {
+        // Solo permitimos que esté en login o register
+        if (!enLogin && !enRegister) return '/login';
+        return null;
+      }
 
-      // Si está logueado y está en login o register, redirige a home
-      if (estaLogueado && (enLogin || enRegister)) return '/home';
+      // 2. SI ESTÁ LOGUEADO
+      if (estaLogueado) {
+        // CASO A: No tiene perfil creado en Firestore (Usuario nuevo recién registrado)
+        if (!tienePerfil) {
+          // Si no está ya en la pantalla de completar perfil, lo obligamos a ir
+          if (!enCompletarPerfil) return '/completar-perfil';
+          return null;
+        }
 
-      // Si está en completar perfil no redirigir aunque esté logueado
-      if (enCompletarPerfil) return null;
+        // CASO B: Tiene perfil completo
+        // Si intenta entrar a pantallas de Auth estando ya listo, lo mandamos al Home
+        if (enLogin || enRegister || enCompletarPerfil) {
+          return '/home';
+        }
+      }
 
+      // En cualquier otro caso, que siga su ruta normal
       return null;
     },
 

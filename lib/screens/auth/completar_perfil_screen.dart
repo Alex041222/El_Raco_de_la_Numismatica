@@ -77,7 +77,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
       // Guardar los datos del perfil en Firestore
       await _usuarioService.actualizarPerfil(uid, {
         'nombreUsuario': _nombreController.text.trim(),
-        'fotoPerfil': urlFoto,
+        'fotoPerfil': urlFoto, // <--- Aquí irá la URL https://...
         'biografia': _biografiaController.text.trim(),
         'direccion': _direccionController.text.trim(),
       });
@@ -85,7 +85,6 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
       // Recargar el perfil en el provider
       await authProvider.recargarPerfil();
 
-      // Redirigir a home
       if (mounted) context.go('/home');
 
     } catch (e) {
@@ -98,7 +97,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
         );
       }
     } finally {
-      setState(() => _cargando = false);
+      if (mounted) setState(() => _cargando = false);
     }
   }
 

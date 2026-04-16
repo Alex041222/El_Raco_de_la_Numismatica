@@ -4,8 +4,8 @@ import 'dart:io';
 class CloudinaryService {
   // CONFIGURACIÓN: Reemplaza con tus datos de Cloudinary
   final _cloudinary = CloudinaryPublic(
-      'tu_cloud_name',
-      'tu_upload_preset', // El preset debe ser "Unsigned"
+      'duwpfg50x',
+      'Numista', // El preset debe ser "Unsigned"
       cache: false
   );
 

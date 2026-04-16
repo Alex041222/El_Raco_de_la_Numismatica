@@ -11,13 +11,13 @@ class AuthProvider extends ChangeNotifier {
   User? _usuarioFirebase;
   Usuario? _usuarioPerfil;
   bool _cargando = false;
-  bool _cargandoInicial = true; // ← nou: true fins que Firebase comprovi la sessió
+  bool _cargandoInicial = true;
   String? _error;
 
   User? get usuarioFirebase => _usuarioFirebase;
   Usuario? get usuarioPerfil => _usuarioPerfil;
   bool get cargando => _cargando;
-  bool get cargandoInicial => _cargandoInicial; // ← nou getter
+  bool get cargandoInicial => _cargandoInicial;
   String? get error => _error;
   bool get estaLogueado => _usuarioFirebase != null;
 
@@ -25,12 +25,13 @@ class AuthProvider extends ChangeNotifier {
     _authService.estadoAuth.listen((user) async {
       _usuarioFirebase = user;
       if (user != null) {
+        // Buscamos el perfil en Firestore
         _usuarioPerfil = await _usuarioService.obtenerUsuario(user.uid);
       } else {
         _usuarioPerfil = null;
       }
-      _cargandoInicial = false; // ← ja ha comprovat la sessió
-      notifyListeners();
+      _cargandoInicial = false;
+      notifyListeners(); // Notifica al Router para que evalúe redirección
     });
   }
 
@@ -39,13 +40,20 @@ class AuthProvider extends ChangeNotifier {
       _cargando = true;
       _error = null;
       notifyListeners();
+
       await _authService.registrar(email, password);
+
+      // ALERTA: No hace falta hacer nada más aquí.
+      // El stream del constructor detectará al nuevo User,
+      // verá que usuarioPerfil es null (porque es nuevo)
+      // y el Router hará su trabajo.
+
     } catch (e) {
       _error = _traducirError(e.toString());
-    } finally {
       _cargando = false;
       notifyListeners();
     }
+    // Nota: El finally lo quitamos o aseguramos que no rompa el flujo
   }
 
   Future<void> login(String email, String password) async {
@@ -54,9 +62,10 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
       await _authService.login(email, password);
+
+      // Al loguear, el stream se encargará de cargar el _usuarioPerfil
     } catch (e) {
       _error = _traducirError(e.toString());
-    } finally {
       _cargando = false;
       notifyListeners();
     }
@@ -64,15 +73,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await _authService.logout();
+    _usuarioFirebase = null; // Limpiar explícitamente
     _usuarioPerfil = null;
     notifyListeners();
   }
 
+  // ESTA FUNCIÓN ES CLAVE: Se llama desde CompletarPerfilScreen después de guardar en Firestore
   Future<void> recargarPerfil() async {
     if (_usuarioFirebase != null) {
-      _usuarioPerfil =
-      await _usuarioService.obtenerUsuario(_usuarioFirebase!.uid);
-      notifyListeners();
+      _usuarioPerfil = await _usuarioService.obtenerUsuario(_usuarioFirebase!.uid);
+      notifyListeners(); // Esto hará que el Router te deje entrar a /home
     }
   }
 
@@ -82,19 +92,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String _traducirError(String error) {
-    if (error.contains('email-already-in-use')) {
-      return 'Este email ya está registrado';
-    } else if (error.contains('wrong-password')) {
-      return 'Contraseña incorrecta';
-    } else if (error.contains('user-not-found')) {
-      return 'No existe ninguna cuenta con este email';
-    } else if (error.contains('invalid-email')) {
-      return 'El email no es válido';
-    } else if (error.contains('weak-password')) {
-      return 'La contraseña debe tener al menos 6 caracteres';
-    } else if (error.contains('network-request-failed')) {
-      return 'Sin conexión a internet';
-    }
+    if (error.contains('email-already-in-use')) return 'Este email ya está registrado';
+    if (error.contains('wrong-password')) return 'Contraseña incorrecta';
+    if (error.contains('user-not-found')) return 'No existe ninguna cuenta con este email';
+    if (error.contains('invalid-email')) return 'El email no es válido';
+    if (error.contains('weak-password')) return 'La contraseña debe tener al menos 6 caracteres';
+    if (error.contains('network-request-failed')) return 'Sin conexión a internet';
     return 'Ha ocurrido un error, inténtalo de nuevo';
   }
 }

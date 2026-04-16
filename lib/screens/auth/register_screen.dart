@@ -11,15 +11,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controladores para los campos de texto
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmarPasswordController = TextEditingController();
-
-  // Clave para validar el formulario
   final _formKey = GlobalKey<FormState>();
 
-  // Controla si las contraseñas se ven o no
   bool _verPassword = false;
   bool _verConfirmarPassword = false;
 
@@ -31,41 +27,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  // Función que se ejecuta al pulsar el botón de registro
   Future<void> _registrar() async {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Intentar el registro
     await authProvider.registrar(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
 
-    // Si el registro es correcto redirigimos a completar perfil
-    if (authProvider.error == null && mounted) {
-      // Usamos go para reemplazar la pantalla actual
-      context.go('/completar-perfil');
-      return;
-    }
-
-    // Si hay error lo mostramos en un snackbar
-    if (authProvider.error != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error!),
-          backgroundColor: Colors.red,
-        ),
-      );
-      authProvider.limpiarError();
+    // IMPORTANTE: Verificamos si no hubo error
+    if (authProvider.error == null) {
+      if (mounted) {
+        // Forzamos la navegación a completar perfil.
+        // Si el Router intenta mandarte a Home, esta instrucción
+        // debería ganar si el Router tiene la excepción configurada.
+        context.go('/completar-perfil');
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.error!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        authProvider.limpiarError();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Escuchamos el authProvider para el estado de carga (CircularProgress)
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2), // fondo crema
+      backgroundColor: const Color(0xFFFAF7F2),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -75,12 +75,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-                  // Logo / título
                   Image.asset(
                     'assets/images/logo.png',
-                    width: 400,
-                    height: 400,
+                    width: 250, // Reducido un poco para que quepa mejor en pantallas pequeñas
+                    height: 250,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 12),
@@ -94,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // Campo email
+                  // Email
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -104,18 +102,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Introduce tu email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'El email no es válido';
-                      }
+                      if (value == null || value.isEmpty) return 'Introduce tu email';
+                      if (!value.contains('@')) return 'El email no es válido';
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo contraseña
+                  // Password
                   TextFormField(
                     controller: _passwordController,
                     obscureText: !_verPassword,
@@ -124,27 +118,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIcon: const Icon(Icons.lock_outlined),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: Icon(_verPassword
-                            ? Icons.visibility_off
-                            : Icons.visibility),
-                        onPressed: () {
-                          setState(() => _verPassword = !_verPassword);
-                        },
+                        icon: Icon(_verPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(() => _verPassword = !_verPassword),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Introduce tu contraseña';
-                      }
-                      if (value.length < 6) {
-                        return 'La contraseña debe tener al menos 6 caracteres';
-                      }
+                      if (value == null || value.isEmpty) return 'Introduce tu contraseña';
+                      if (value.length < 6) return 'Mínimo 6 caracteres';
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo confirmar contraseña
+                  // Confirmar Password
                   TextFormField(
                     controller: _confirmarPasswordController,
                     obscureText: !_verConfirmarPassword,
@@ -153,23 +139,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIcon: const Icon(Icons.lock_outlined),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: Icon(_verConfirmarPassword
-                            ? Icons.visibility_off
-                            : Icons.visibility),
-                        onPressed: () {
-                          setState(() =>
-                          _verConfirmarPassword = !_verConfirmarPassword);
-                        },
+                        icon: Icon(_verConfirmarPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(() => _verConfirmarPassword = !_verConfirmarPassword),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Confirma tu contraseña';
-                      }
-                      // Comprueba que las dos contraseñas coinciden
-                      if (value != _passwordController.text) {
-                        return 'Las contraseñas no coinciden';
-                      }
+                      if (value == null || value.isEmpty) return 'Confirma tu contraseña';
+                      if (value != _passwordController.text) return 'Las contraseñas no coinciden';
                       return null;
                     },
                   ),
@@ -187,15 +163,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: authProvider.cargando
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                        'Crear cuenta',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                          : const Text('Crear cuenta', style: TextStyle(fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Enlace a la pantalla de login
                   TextButton(
                     onPressed: () => context.go('/login'),
                     child: const Text(

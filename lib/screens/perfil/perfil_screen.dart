@@ -254,19 +254,17 @@ class _PerfilScreenState extends State<PerfilScreen>
           return NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverAppBar(
-                expandedHeight: 220,
+                expandedHeight: 280, // Aumentamos la altura para que no esté pegado
                 pinned: true,
                 backgroundColor: const Color(0xFFB8860B),
                 foregroundColor: Colors.white,
                 automaticallyImplyLeading: !esMiPerfil,
                 actions: [
-                  // Botón editar perfil si es el mío
                   if (esMiPerfil)
                     IconButton(
                       icon: const Icon(Icons.edit_outlined),
                       onPressed: () => context.push('/editar-perfil'),
                     ),
-                  // Botón cerrar sesión si es el mío
                   if (esMiPerfil)
                     IconButton(
                       icon: const Icon(Icons.logout),
@@ -275,7 +273,6 @@ class _PerfilScreenState extends State<PerfilScreen>
                         if (mounted) context.go('/login');
                       },
                     ),
-                  // Botón dejar reseña si es otro usuario
                   if (!esMiPerfil)
                     IconButton(
                       icon: const Icon(Icons.rate_review_outlined),
@@ -284,57 +281,94 @@ class _PerfilScreenState extends State<PerfilScreen>
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
-                    color: const Color(0xFFB8860B),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF8B6508), // Un tono más oscuro arriba
+                          Color(0xFFB8860B),
+                        ],
+                      ),
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 40),
+                        // ESPACIADOR PARA BAJAR EL CONTENIDO
+                        const SizedBox(height: 60),
 
-                        // Foto de perfil
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor:
-                          Colors.white.withOpacity(0.3),
-                          backgroundImage: usuario?.fotoPerfil.isNotEmpty == true
-                              ? CachedNetworkImageProvider(
-                              usuario!.fotoPerfil)
-                              : const AssetImage(
-                              'assets/images/default_avatar.png')
-                          as ImageProvider,
+                        // Foto de perfil con borde decorativo
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              )
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.white24,
+                            backgroundImage: usuario?.fotoPerfil.isNotEmpty == true
+                                ? CachedNetworkImageProvider(usuario!.fotoPerfil)
+                                : const AssetImage('assets/images/default_avatar.png')
+                            as ImageProvider,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
 
-                        // Nombre de usuario
+                        // Nombre de usuario con sombra para legibilidad
                         Text(
                           usuario?.nombreUsuario ?? 'Usuario',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 4,
+                                color: Colors.black26,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
 
-                        // Puntuación
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              (usuario?.puntuacion ?? 0) >= 0
-                                  ? Icons.thumb_up
-                                  : Icons.thumb_down,
-                              size: 14,
-                              color: Colors.white70,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${usuario?.puntuacion ?? 0} puntos',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
+                        // Puntuación mejor organizada
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                (usuario?.puntuacion ?? 0) >= 0
+                                    ? Icons.stars
+                                    : Icons.trending_down,
+                                size: 16,
+                                color: Colors.white,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Text(
+                                '${usuario?.puntuacion ?? 0} puntos de reputación',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 20), // Espacio antes de las tabs
                       ],
                     ),
                   ),
@@ -342,6 +376,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                 bottom: TabBar(
                   controller: _tabController,
                   indicatorColor: Colors.white,
+                  indicatorWeight: 3,
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white60,
                   isScrollable: true,

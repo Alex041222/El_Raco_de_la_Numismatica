@@ -111,15 +111,13 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
       // Calcular fecha de fin según la duración elegida
       final fechaFin = DateTime.now().add(Duration(days: _duracionDias));
-
-      final precioSalida =
-      double.parse(_precioSalidaController.text.trim());
+      final precioSalida = double.parse(_precioSalidaController.text.trim());
 
       // Crear el objeto MonedaSubasta
       final moneda = MonedaSubasta(
         monedaId: monedaId,
         vendedorId: uid,
-        imagenes: urls,
+        imagenes: urls, // <--- Lista de links cortos de Cloudinary
         emisor: _emisorController.text.trim(),
         pais: _paisController.text.trim(),
         periodo: _periodoController.text.trim(),
@@ -132,8 +130,8 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
         tecnicaAcuniacion: _tecnicaController.text.trim(),
         estadoConservacion: _estadoConservacionController.text.trim(),
         precioSalida: precioSalida,
-        precioActual: precioSalida, // al inicio el precio actual = precio salida
-        ganadorId: '',              // vacío hasta que alguien puje
+        precioActual: precioSalida,
+        ganadorId: '',
         fechaFin: fechaFin,
         disponible: true,
         fechaCreacion: DateTime.now(),
@@ -161,7 +159,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
         );
       }
     } finally {
-      setState(() => _cargando = false);
+      if (mounted) setState(() => _cargando = false);
     }
   }
 

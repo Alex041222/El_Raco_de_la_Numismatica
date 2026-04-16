@@ -136,15 +136,13 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundColor:
-                      const Color(0xFFB8860B).withOpacity(0.2),
-                      // Prioridad: nueva foto > foto actual > foto de stock
+                      backgroundColor: const Color(0xFFB8860B).withOpacity(0.2),
+                      // Lógica corregida para mostrar la imagen:
                       backgroundImage: _nuevaFoto != null
-                          ? FileImage(_nuevaFoto!) as ImageProvider
-                          : (usuario?.fotoPerfil.isNotEmpty == true
-                          ? NetworkImage(usuario!.fotoPerfil)
-                          : const AssetImage(
-                          'assets/images/default_avatar.png')),
+                          ? FileImage(_nuevaFoto!) as ImageProvider // Foto nueva local
+                          : (usuario?.fotoPerfil != null && usuario!.fotoPerfil.startsWith('http')
+                          ? NetworkImage(usuario.fotoPerfil) // Foto de Cloudinary
+                          : const AssetImage('assets/images/default_avatar.png')), // Foto por defecto
                     ),
                     // Icono de editar encima de la foto
                     Positioned(
