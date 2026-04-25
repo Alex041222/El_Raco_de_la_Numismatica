@@ -3,8 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/carrito_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../models/moneda_venta_model.dart';
+import '../../services/usuario_service.dart';
+import '../../models/usuario_model.dart';
 
 class CatalogoScreen extends StatefulWidget {
   const CatalogoScreen({super.key});
@@ -30,6 +33,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
   @override
   Widget build(BuildContext context) {
     final carritoProvider = Provider.of<CarritoProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF7F2),
@@ -77,7 +81,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             child: TextField(
               controller: _busquedaController,
               decoration: InputDecoration(
-                hintText: 'Buscar por emisor, país, periodo...',
+                hintText: 'Buscar por nombre, país, periodo...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -134,7 +138,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                 // Filtrar por texto de búsqueda
                 final monedas = snapshot.data!.where((moneda) {
                   if (_textoBusqueda.isEmpty) return true;
-                  return moneda.emisor.toLowerCase().contains(_textoBusqueda) ||
+                  return moneda.nom.toLowerCase().contains(_textoBusqueda) ||
                       moneda.pais.toLowerCase().contains(_textoBusqueda) ||
                       moneda.periodo.toLowerCase().contains(_textoBusqueda);
                 }).toList();
@@ -160,6 +164,8 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                   itemCount: monedas.length,
                   itemBuilder: (context, index) {
                     final moneda = monedas[index];
+                    final esMiMoneda = authProvider.usuarioFirebase?.uid == moneda.vendedorId;
+                    
                     return _TarjetaMoneda(
                       moneda: moneda,
                       enCarrito: carritoProvider.estaEnCarrito(moneda.monedaId),
@@ -167,6 +173,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                       onTap: () => context.push(
                         '/detalle-moneda/${moneda.monedaId}',
                       ),
+                      esMiMoneda: esMiMoneda,
                     );
                   },
                 );
@@ -185,16 +192,19 @@ class _TarjetaMoneda extends StatelessWidget {
   final bool enCarrito;
   final VoidCallback onAgregar;
   final VoidCallback onTap;
+  final bool esMiMoneda;
 
   const _TarjetaMoneda({
     required this.moneda,
     required this.enCarrito,
     required this.onAgregar,
     required this.onTap,
+    this.esMiMoneda = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final usuarioService = UsuarioService();
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -251,19 +261,28 @@ class _TarjetaMoneda extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Emisor y país
+                  // Títol (Nom de la moneda)
                   Text(
-                    '${moneda.emisor} - ${moneda.pais}',
+                    moneda.nom,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 13,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
 
-                  // Periodo
+                  // País i Període
+                  Text(
+                    moneda.pais,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   Text(
                     moneda.periodo,
                     style: const TextStyle(
@@ -274,6 +293,31 @@ class _TarjetaMoneda extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
+
+                  // Vendedor
+                  FutureBuilder<Usuario?>(
+                    future: usuarioService.obtenerUsuario(moneda.vendedorId),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person, size: 12, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                snapshot.data!.nombreUsuario,
+                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Precio y botón agregar al carrito
                   Row(
@@ -288,25 +332,26 @@ class _TarjetaMoneda extends StatelessWidget {
                         ),
                       ),
                       // Botón agregar al carrito
-                      GestureDetector(
-                        onTap: enCarrito ? null : onAgregar,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: enCarrito
-                                ? Colors.grey.shade300
-                                : const Color(0xFFB8860B),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(
-                            enCarrito
-                                ? Icons.check
-                                : Icons.add_shopping_cart,
-                            size: 16,
-                            color: Colors.white,
+                      if (!esMiMoneda)
+                        GestureDetector(
+                          onTap: enCarrito ? null : onAgregar,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: enCarrito
+                                  ? Colors.grey.shade300
+                                  : const Color(0xFFB8860B),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Icon(
+                              enCarrito
+                                  ? Icons.check
+                                  : Icons.add_shopping_cart,
+                              size: 16,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ],

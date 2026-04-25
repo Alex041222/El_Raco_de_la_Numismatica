@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
 import '../../models/mensaje_model.dart';
@@ -22,6 +23,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _mensajeController = TextEditingController();
   final _scrollController = ScrollController();
   bool _enviando = false;
+  String _nombreOtroUsuario = 'Cargando...';
 
   @override
   void initState() {
@@ -32,6 +34,35 @@ class _ChatScreenState extends State<ChatScreen> {
       widget.chatId,
       authProvider.usuarioFirebase!.uid,
     );
+    _cargarNombreOtroUsuario();
+  }
+
+  Future<void> _cargarNombreOtroUsuario() async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final miUid = authProvider.usuarioFirebase!.uid;
+      
+      final doc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        final otroUsuarioId = data['usuarioAId'] == miUid ? data['usuarioBId'] : data['usuarioAId'];
+        
+        final userDoc = await FirebaseFirestore.instance.collection('usuarios').doc(otroUsuarioId).get();
+        if (userDoc.exists && userDoc.data() != null) {
+          if (mounted) {
+            setState(() {
+              _nombreOtroUsuario = userDoc.data()!['nombreUsuario'] ?? 'Usuario';
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _nombreOtroUsuario = 'Conversación';
+        });
+      }
+    }
   }
 
   @override
@@ -125,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB8860B),
         foregroundColor: Colors.white,
-        title: const Text('Conversación'),
+        title: Text(_nombreOtroUsuario),
       ),
       body: Column(
         children: [

@@ -8,6 +8,8 @@ import '../../services/moneda_service.dart';
 import '../../services/subasta_service.dart';
 import '../../models/moneda_subasta_model.dart';
 import '../../models/puja_model.dart';
+import '../../models/usuario_model.dart';
+import '../../services/usuario_service.dart';
 
 class DetalleSubastaScreen extends StatefulWidget {
   final String? monedaId;
@@ -264,6 +266,16 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
+                      // Nom de la moneda
+                      Text(
+                        moneda.nom,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       // Precio actual y tiempo restante
                       Container(
                         width: double.infinity,
@@ -329,11 +341,42 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                       ),
                       const SizedBox(height: 16),
 
+                      // Vendedor
+                      FutureBuilder<Usuario?>(
+                        future: UsuarioService().obtenerUsuario(moneda.vendedorId),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundImage: snapshot.data!.fotoPerfil.isNotEmpty
+                                      ? CachedNetworkImageProvider(snapshot.data!.fotoPerfil)
+                                      : null,
+                                  child: snapshot.data!.fotoPerfil.isEmpty
+                                      ? const Icon(Icons.person, size: 16)
+                                      : null,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  snapshot.data!.nombreUsuario,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
                       // Datos de la moneda
                       _SeccionDatos(
                         titulo: 'Información general',
                         datos: {
-                          'Emisor': moneda.emisor,
                           'País': moneda.pais,
                           'Periodo': moneda.periodo,
                           'Unidad monetaria': moneda.unidadMonetaria,
@@ -443,6 +486,7 @@ class _ListaSubastas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final usuarioService = UsuarioService();
     return Scaffold(
       backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
@@ -541,7 +585,7 @@ class _ListaSubastas extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${moneda.emisor} - ${moneda.pais}',
+                                moneda.nom,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -549,11 +593,37 @@ class _ListaSubastas extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
+                              Text(
+                                moneda.pais,
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.grey),
+                              ),
                               Text(
                                 moneda.periodo,
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 4),
+                              FutureBuilder<Usuario?>(
+                                future: usuarioService.obtenerUsuario(moneda.vendedorId),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) return const SizedBox.shrink();
+                                  return Row(
+                                    children: [
+                                      const Icon(Icons.person, size: 12, color: Colors.grey),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          snapshot.data!.nombreUsuario,
+                                          style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                               const SizedBox(height: 8),
                               // Precio actual
@@ -741,16 +811,35 @@ class _HistorialPujas extends StatelessWidget {
                           : Colors.grey,
                       size: 20,
                     ),
-                    title: Text(
-                      '${puja.importe.toStringAsFixed(2)} €',
-                      style: TextStyle(
-                        fontWeight: esPrimera
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: esPrimera
-                            ? const Color(0xFFB8860B)
-                            : Colors.black,
-                      ),
+                    title: Row(
+                      children: [
+                        Text(
+                          '${puja.importe.toStringAsFixed(2)} €',
+                          style: TextStyle(
+                            fontWeight: esPrimera
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: esPrimera
+                                ? const Color(0xFFB8860B)
+                                : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FutureBuilder<Usuario?>(
+                            future: UsuarioService().obtenerUsuario(puja.usuarioId),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return const SizedBox.shrink();
+                              return Text(
+                                snapshot.data!.nombreUsuario,
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     subtitle: Text(
                       DateFormat('dd/MM/yyyy HH:mm')

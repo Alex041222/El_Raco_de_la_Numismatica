@@ -22,7 +22,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
   bool _cargando = false;
 
   // Controladores de texto
-  final _emisorController = TextEditingController();
+  final _nomController = TextEditingController();
   final _paisController = TextEditingController();
   final _periodoController = TextEditingController();
   final _unidadMonetariaController = TextEditingController();
@@ -40,7 +40,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
   @override
   void dispose() {
-    _emisorController.dispose();
+    _nomController.dispose();
     _paisController.dispose();
     _periodoController.dispose();
     _unidadMonetariaController.dispose();
@@ -110,7 +110,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
         monedaId: monedaId,
         vendedorId: uid,
         imagenes: urls, // <--- Lista de strings (URLs)
-        emisor: _emisorController.text.trim(),
+        nom: _nomController.text.trim(),
         pais: _paisController.text.trim(),
         periodo: _periodoController.text.trim(),
         unidadMonetaria: _unidadMonetariaController.text.trim(),
@@ -257,8 +257,8 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
                 titulo: 'Información general',
                 children: [
                   _CampoTexto(
-                    controller: _emisorController,
-                    label: 'Emisor',
+                    controller: _nomController,
+                    label: 'Nom de la moneda',
                     obligatorio: true,
                   ),
                   _CampoTexto(

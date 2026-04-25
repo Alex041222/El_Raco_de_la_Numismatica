@@ -40,12 +40,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // IMPORTANTE: Verificamos si no hubo error
     if (authProvider.error == null) {
-      if (mounted) {
-        // Forzamos la navegación a completar perfil.
-        // Si el Router intenta mandarte a Home, esta instrucción
-        // debería ganar si el Router tiene la excepción configurada.
-        context.go('/completar-perfil');
-      }
+      // El Router (router.dart) escucha los cambios del AuthProvider.
+      // Automáticamente detectará que hay un usuario pero no tiene perfil,
+      // y hará la redirección a /completar-perfil. No hace falta forzarlo aquí.
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

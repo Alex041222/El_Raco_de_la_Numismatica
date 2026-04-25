@@ -38,50 +38,20 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _pantallas[_indicePestana],
 
       // Botón flotante para publicar moneda nueva
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        onPressed: () {
-          // Muestra un dialogo para elegir tipo de publicación
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 16),
-                const Text(
-                  'Publicar',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  leading: const Icon(Icons.sell, color: Color(0xFFB8860B)),
-                  title: const Text('Venta directa'),
-                  subtitle: const Text('Precio fijo'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/publicar-venta');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.gavel, color: Color(0xFFB8860B)),
-                  title: const Text('Subasta'),
-                  subtitle: const Text('Con tiempo límite'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/publicar-subasta');
-                  },
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _indicePestana <= 1
+          ? FloatingActionButton(
+              backgroundColor: const Color(0xFFB8860B),
+              foregroundColor: Colors.white,
+              onPressed: () {
+                if (_indicePestana == 0) {
+                  context.push('/publicar-venta');
+                } else if (_indicePestana == 1) {
+                  context.push('/publicar-subasta');
+                }
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
 
       // Barra de navegación inferior
       bottomNavigationBar: NavigationBar(

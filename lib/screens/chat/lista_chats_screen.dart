@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
 import '../../models/chat_model.dart';
+import '../../models/usuario_model.dart';
+import '../../services/usuario_service.dart';
 
 class ListaChatsScreen extends StatelessWidget {
   const ListaChatsScreen({super.key});
@@ -98,41 +100,50 @@ class _TarjetaChat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return FutureBuilder<Usuario?>(
+      future: UsuarioService().obtenerUsuario(otroUsuarioId),
+      builder: (context, snapshot) {
+        final usuario = snapshot.data;
+        final nombreUsuario = usuario?.nombreUsuario ?? 'Cargando...';
+        final fotoPerfil = usuario?.fotoPerfil ?? '';
 
-      // Avatar del otro usuario
-      leading: CircleAvatar(
-        radius: 28,
-        backgroundColor: const Color(0xFFB8860B).withOpacity(0.2),
-        child: const Icon(
-          Icons.person,
-          color: Color(0xFFB8860B),
-        ),
-      ),
+        return ListTile(
+          onTap: onTap,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
 
-      // Nombre del otro usuario e último mensaje
-      title: Text(
-        otroUsuarioId, // mostramos el ID por ahora, en perfil_screen lo mejoraremos
-        style: const TextStyle(fontWeight: FontWeight.bold),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        chat.ultimoMensaje.isEmpty
-            ? 'Inicia la conversación'
-            : chat.ultimoMensaje,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: Colors.grey),
-      ),
+          // Avatar del otro usuario
+          leading: CircleAvatar(
+            radius: 28,
+            backgroundColor: const Color(0xFFB8860B).withOpacity(0.2),
+            backgroundImage: fotoPerfil.isNotEmpty ? NetworkImage(fotoPerfil) : null,
+            child: fotoPerfil.isEmpty
+                ? const Icon(Icons.person, color: Color(0xFFB8860B))
+                : null,
+          ),
 
-      // Fecha del último mensaje
-      trailing: Text(
-        _formatearFecha(chat.fechaUltimoMensaje),
-        style: const TextStyle(fontSize: 11, color: Colors.grey),
-      ),
+          // Nombre del otro usuario e último mensaje
+          title: Text(
+            nombreUsuario,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            chat.ultimoMensaje.isEmpty
+                ? 'Inicia la conversación'
+                : chat.ultimoMensaje,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.grey),
+          ),
+
+          // Fecha del último mensaje
+          trailing: Text(
+            _formatearFecha(chat.fechaUltimoMensaje),
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        );
+      },
     );
   }
 

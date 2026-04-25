@@ -101,7 +101,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                     pedidoId: pedidoId,
                     monedaId: m.monedaId,
                     precioUnitario: m.precio,
-                    tituloSnapshot: '${m.emisor} - ${m.pais}',
+                    tituloSnapshot: m.nom,
                   )).toList();
 
                   // Crear pedido
@@ -281,7 +281,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${moneda.emisor} - ${moneda.pais}',
+                                moneda.nom,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,

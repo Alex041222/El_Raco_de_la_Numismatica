@@ -6,7 +6,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/carrito_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../services/chat_service.dart';
+import '../../services/usuario_service.dart';
 import '../../models/moneda_venta_model.dart';
+import '../../models/usuario_model.dart';
 
 class DetalleMonedaScreen extends StatefulWidget {
   final String monedaId;
@@ -160,6 +162,16 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Nom de la moneda
+                      Text(
+                        moneda.nom,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       // Precio y disponibilidad
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,11 +207,42 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                       ),
                       const SizedBox(height: 16),
 
+                      // Vendedor
+                      FutureBuilder<Usuario?>(
+                        future: UsuarioService().obtenerUsuario(moneda.vendedorId),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundImage: snapshot.data!.fotoPerfil.isNotEmpty
+                                      ? CachedNetworkImageProvider(snapshot.data!.fotoPerfil)
+                                      : null,
+                                  child: snapshot.data!.fotoPerfil.isEmpty
+                                      ? const Icon(Icons.person, size: 16)
+                                      : null,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  snapshot.data!.nombreUsuario,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
                       // Datos de la moneda
                       _SeccionDatos(
                         titulo: 'Información general',
                         datos: {
-                          'Emisor': moneda.emisor,
                           'País': moneda.pais,
                           'Periodo': moneda.periodo,
                           'Unidad monetaria': moneda.unidadMonetaria,

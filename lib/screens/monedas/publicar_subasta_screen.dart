@@ -21,7 +21,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
   bool _cargando = false;
 
   // Controladores de texto
-  final _emisorController = TextEditingController();
+  final _nomController = TextEditingController();
   final _paisController = TextEditingController();
   final _periodoController = TextEditingController();
   final _unidadMonetariaController = TextEditingController();
@@ -34,18 +34,15 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
   final _estadoConservacionController = TextEditingController();
   final _precioSalidaController = TextEditingController();
 
-  // Duración de la subasta seleccionada (en días)
-  int _duracionDias = 1;
-
-  // Opciones de duración disponibles
-  final List<int> _opcionesDuracion = [1, 3, 7, 14];
+  // Data final escollida manualment
+  DateTime? _fechaFinElegida;
 
   // Lista de imágenes seleccionadas
   final List<File> _imagenes = [];
 
   @override
   void dispose() {
-    _emisorController.dispose();
+    _nomController.dispose();
     _paisController.dispose();
     _periodoController.dispose();
     _unidadMonetariaController.dispose();
@@ -109,8 +106,16 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
       final urls = await _monedaService.subirImagenesMoneda(
           monedaId, _imagenes);
 
-      // Calcular fecha de fin según la duración elegida
-      final fechaFin = DateTime.now().add(Duration(days: _duracionDias));
+      if (_fechaFinElegida == null || _fechaFinElegida!.isBefore(DateTime.now())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Selecciona una fecha de fin válida (en el futuro)')),
+        );
+        setState(() => _cargando = false);
+        return;
+      }
+
+      // Calcular fecha de fin elegida manualmente
+      final fechaFin = _fechaFinElegida!;
       final precioSalida = double.parse(_precioSalidaController.text.trim());
 
       // Crear el objeto MonedaSubasta
@@ -118,7 +123,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
         monedaId: monedaId,
         vendedorId: uid,
         imagenes: urls, // <--- Lista de links cortos de Cloudinary
-        emisor: _emisorController.text.trim(),
+        nom: _nomController.text.trim(),
         pais: _paisController.text.trim(),
         periodo: _periodoController.text.trim(),
         unidadMonetaria: _unidadMonetariaController.text.trim(),
@@ -269,8 +274,8 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
                 titulo: 'Información general',
                 children: [
                   _CampoTexto(
-                    controller: _emisorController,
-                    label: 'Emisor',
+                    controller: _nomController,
+                    label: 'Nom de la moneda',
                   ),
                   _CampoTexto(
                     controller: _paisController,
@@ -335,55 +340,41 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
                   ),
                   const SizedBox(height: 4),
 
-                  // Selector de duración
-                  const Text(
-                    'Duración de la subasta',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  // Seleccionar fecha y hora de fin
+              const Text(
+                'Duración de la subasta',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFB8860B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              
+              InkWell(
+                onTap: _seleccionarFechaHora,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(height: 8),
-
-                  // Botones de selección de días
-                  Row(
-                    children: _opcionesDuracion.map((dias) {
-                      final seleccionado = _duracionDias == dias;
-                      return GestureDetector(
-                        onTap: () => setState(() => _duracionDias = dias),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: seleccionado
-                                ? const Color(0xFFB8860B)
-                                : Colors.white,
-                            border: Border.all(
-                              color: const Color(0xFFB8860B),
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '$dias ${dias == 1 ? 'día' : 'días'}',
-                            style: TextStyle(
-                              color: seleccionado
-                                  ? Colors.white
-                                  : const Color(0xFFB8860B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _fechaFinElegida == null
+                            ? 'Seleccionar fecha y hora de fin'
+                            : _formatearFecha(_fechaFinElegida!),
+                        style: TextStyle(
+                          color: _fechaFinElegida == null ? Colors.grey : Colors.black,
                         ),
-                      );
-                    }).toList(),
+                      ),
+                      const Icon(Icons.calendar_today, color: Color(0xFFB8860B)),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-
-                  // Mostrar fecha de fin calculada
-                  Text(
-                    'La subasta terminará el ${_calcularFechaFin()}',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
+                ),
+              ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -414,10 +405,37 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
     );
   }
 
-  // Calcular y formatear la fecha de fin de la subasta
-  String _calcularFechaFin() {
-    final fecha = DateTime.now().add(Duration(days: _duracionDias));
-    return '${fecha.day}/${fecha.month}/${fecha.year} '
+  Future<void> _seleccionarFechaHora() async {
+    final fecha = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (fecha != null) {
+      final hora = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (hora != null) {
+        setState(() {
+          _fechaFinElegida = DateTime(
+            fecha.year,
+            fecha.month,
+            fecha.day,
+            hora.hour,
+            hora.minute,
+          );
+        });
+      }
+    }
+  }
+
+  // Formatear la fecha elegida
+  String _formatearFecha(DateTime fecha) {
+    return '${fecha.day.toString().padLeft(2, '0')}/'
+        '${fecha.month.toString().padLeft(2, '0')}/'
+        '${fecha.year} '
         'a las ${fecha.hour.toString().padLeft(2, '0')}:'
         '${fecha.minute.toString().padLeft(2, '0')}';
   }

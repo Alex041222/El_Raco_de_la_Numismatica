@@ -43,17 +43,17 @@ class AuthProvider extends ChangeNotifier {
 
       await _authService.registrar(email, password);
 
-      // ALERTA: No hace falta hacer nada más aquí.
-      // El stream del constructor detectará al nuevo User,
-      // verá que usuarioPerfil es null (porque es nuevo)
-      // y el Router hará su trabajo.
+      // Actualizamos manualmente para evitar la latencia del stream
+      _usuarioFirebase = FirebaseAuth.instance.currentUser;
+      _usuarioPerfil = null; // Sabemos que es nuevo y no tiene perfil
 
+      _cargando = false;
+      notifyListeners();
     } catch (e) {
       _error = _traducirError(e.toString());
       _cargando = false;
       notifyListeners();
     }
-    // Nota: El finally lo quitamos o aseguramos que no rompa el flujo
   }
 
   Future<void> login(String email, String password) async {
@@ -61,9 +61,17 @@ class AuthProvider extends ChangeNotifier {
       _cargando = true;
       _error = null;
       notifyListeners();
+      
       await _authService.login(email, password);
 
-      // Al loguear, el stream se encargará de cargar el _usuarioPerfil
+      // Actualizamos manualmente para evitar la latencia del stream
+      _usuarioFirebase = FirebaseAuth.instance.currentUser;
+      if (_usuarioFirebase != null) {
+        _usuarioPerfil = await _usuarioService.obtenerUsuario(_usuarioFirebase!.uid);
+      }
+
+      _cargando = false;
+      notifyListeners();
     } catch (e) {
       _error = _traducirError(e.toString());
       _cargando = false;

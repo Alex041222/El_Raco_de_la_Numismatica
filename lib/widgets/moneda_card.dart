@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/moneda_venta_model.dart';
 import '../utils/constantes.dart';
+import '../services/usuario_service.dart';
+import '../models/usuario_model.dart';
 
 // Widget reutilizable de tarjeta de moneda en venta
 // Se usa en el catálogo y en el perfil del vendedor
@@ -21,6 +23,7 @@ class MonedaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final usuarioService = UsuarioService();
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -108,19 +111,28 @@ class MonedaCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Emisor y país
+                  // Títol (Nom de la moneda)
                   Text(
-                    '${moneda.emisor} - ${moneda.pais}',
+                    moneda.nom,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 13,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
 
-                  // Periodo
+                  // País i Període
+                  Text(
+                    moneda.pais,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   Text(
                     moneda.periodo,
                     style: const TextStyle(
@@ -131,6 +143,31 @@ class MonedaCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
+
+                  // Vendedor
+                  FutureBuilder<Usuario?>(
+                    future: usuarioService.obtenerUsuario(moneda.vendedorId),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person, size: 12, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                snapshot.data!.nombreUsuario,
+                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Precio y botón agregar al carrito
                   Row(

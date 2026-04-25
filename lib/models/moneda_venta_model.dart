@@ -5,7 +5,7 @@ class MonedaVenta {
   final String monedaId;
   final String vendedorId;       // UID del usuario que la vende
   final List<String> imagenes;   // lista de URLs de fotos en Storage
-  final String emisor;
+  final String nom;
   final String pais;
   final String periodo;
   final String unidadMonetaria;
@@ -24,7 +24,7 @@ class MonedaVenta {
     required this.monedaId,
     required this.vendedorId,
     required this.imagenes,
-    required this.emisor,
+    required this.nom,
     required this.pais,
     required this.periodo,
     required this.unidadMonetaria,
@@ -48,7 +48,7 @@ class MonedaVenta {
       monedaId: doc.id,
       vendedorId: data['vendedorId'] ?? '',
       imagenes: List<String>.from(data['imagenes'] ?? []),
-      emisor: data['emisor'] ?? '',
+      nom: data['nom'] ?? data['emisor'] ?? 'Sense nom',
       pais: data['pais'] ?? '',
       periodo: data['periodo'] ?? '',
       unidadMonetaria: data['unidadMonetaria'] ?? '',
@@ -71,7 +71,7 @@ class MonedaVenta {
     return {
       'vendedorId': vendedorId,
       'imagenes': imagenes,
-      'emisor': emisor,
+      'nom': nom,
       'pais': pais,
       'periodo': periodo,
       'unidadMonetaria': unidadMonetaria,

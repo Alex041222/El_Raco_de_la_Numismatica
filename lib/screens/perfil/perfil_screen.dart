@@ -517,7 +517,7 @@ class _MonedasEnVenta extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${moneda.emisor} - ${moneda.pais}',
+                            moneda.nom,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
@@ -646,7 +646,7 @@ class _SubastasUsuario extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${moneda.emisor} - ${moneda.pais}',
+                            moneda.nom,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold),
                             maxLines: 1,
