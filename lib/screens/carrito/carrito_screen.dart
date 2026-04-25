@@ -8,6 +8,7 @@ import '../../providers/carrito_provider.dart';
 import '../../services/pedido_service.dart';
 import '../../models/pedido_model.dart';
 import '../../models/item_pedido_model.dart';
+import '../l10n/app_localizations.dart';
 
 class CarritoScreen extends StatefulWidget {
   const CarritoScreen({super.key});
@@ -19,138 +20,283 @@ class CarritoScreen extends StatefulWidget {
 class _CarritoScreenState extends State<CarritoScreen> {
   final _pedidoService = PedidoService();
   final _direccionController = TextEditingController();
+  final _telefonoController = TextEditingController();
+  final _numTarjetaController = TextEditingController();
+  final _caducidadController = TextEditingController();
+  final _cvvController = TextEditingController();
+  final _checkoutFormKey = GlobalKey<FormState>();
   bool _cargando = false;
 
   @override
   void dispose() {
     _direccionController.dispose();
+    _telefonoController.dispose();
+    _numTarjetaController.dispose();
+    _caducidadController.dispose();
+    _cvvController.dispose();
     super.dispose();
   }
 
-  // Confirmar la compra de todos los items del carrito
   Future<void> _confirmarCompra() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final carritoProvider = Provider.of<CarritoProvider>(context, listen: false);
-    final uid = authProvider.usuarioFirebase!.uid;
 
-    // Mostrar dialogo para introducir dirección (opcional)
+    _direccionController.clear();
+    _telefonoController.clear();
+    _numTarjetaController.clear();
+    _caducidadController.clear();
+    _cvvController.clear();
+
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar compra'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Total: ${carritoProvider.total.toStringAsFixed(2)} €',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFB8860B),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: AlertDialog(
+          title: Text(AppLocalizations.of(context)!.confirmarCompra, style: const TextStyle(fontWeight: FontWeight.bold)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _checkoutFormKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB8860B).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${AppLocalizations.of(context)!.totalPagar}:', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          '${carritoProvider.total.toStringAsFixed(2)} €',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text('📦 ${AppLocalizations.of(context)!.envio}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 10),
+
+                  // Dirección
+                  TextFormField(
+                    controller: _direccionController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: AppLocalizations.of(context)!.direccionEnvio,
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                      border: OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.hintDireccion,
+                    ),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.direccionObligatoria : null,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Teléfono
+                  TextFormField(
+                    controller: _telefonoController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: AppLocalizations.of(context)!.telefonoContacto,
+                      prefixIcon: Icon(Icons.phone_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return AppLocalizations.of(context)!.telefonoObligatorio;
+                      if (v.trim().length < 9) return AppLocalizations.of(context)!.telefonoValido;
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  Text('💳 ${AppLocalizations.of(context)!.datosPago}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 10),
+
+                  // Número de tarjeta
+                  TextFormField(
+                    controller: _numTarjetaController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 19,
+                    decoration: const InputDecoration(
+                      labelText: AppLocalizations.of(context)!.numTarjeta,
+                      prefixIcon: Icon(Icons.credit_card),
+                      border: OutlineInputBorder(),
+                      hintText: 'XXXX XXXX XXXX XXXX',
+                      counterText: '',
+                    ),
+                    onChanged: (v) {
+                      final digits = v.replaceAll(' ', '');
+                      final formatted = digits.replaceAllMapped(RegExp(r'.{1,4}'), (m) => '${m.group(0)} ').trim();
+                      if (formatted != v) {
+                        _numTarjetaController.value = TextEditingValue(
+                          text: formatted,
+                          selection: TextSelection.collapsed(offset: formatted.length),
+                        );
+                      }
+                    },
+                    validator: (v) {
+                      final digits = (v ?? '').replaceAll(' ', '');
+                      if (digits.isEmpty) return 'El número de tarjeta es obligatorio';
+                      if (digits.length != 16) return AppLocalizations.of(context)!.introduce16;
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      // Fecha caducidad
+                      Expanded(
+                        child: TextFormField(
+                          controller: _caducidadController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 5,
+                          decoration: const InputDecoration(
+                            labelText: AppLocalizations.of(context)!.caducidad,
+                            prefixIcon: Icon(Icons.calendar_today, size: 18),
+                            border: OutlineInputBorder(),
+                            hintText: 'MM/AA',
+                            counterText: '',
+                          ),
+                          onChanged: (v) {
+                            final digits = v.replaceAll('/', '');
+                            String formatted = digits;
+                            if (digits.length >= 3) {
+                              formatted = '${digits.substring(0, 2)}/${digits.substring(2)}';
+                            }
+                            if (formatted != v) {
+                              _caducidadController.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
+                          },
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) return 'Obligatorio';
+                            if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(v.trim())) return AppLocalizations.of(context)!.formatoMMAA;
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // CVV
+                      Expanded(
+                        child: TextFormField(
+                          controller: _cvvController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 4,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: AppLocalizations.of(context)!.cvv,
+                            prefixIcon: Icon(Icons.lock_outline, size: 18),
+                            border: OutlineInputBorder(),
+                            hintText: '***',
+                            counterText: '',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) return 'Obligatorio';
+                            if (v.trim().length < 3) return AppLocalizations.of(context)!.min3Digitos;
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.pagoSimulado,
+                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                  const SizedBox(height: 8),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Campo dirección opcional para simular envío
-            TextField(
-              controller: _direccionController,
-              decoration: const InputDecoration(
-                labelText: 'Dirección de envío (opcional)',
-                border: OutlineInputBorder(),
-                hintText: 'Introduce tu dirección',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!_checkoutFormKey.currentState!.validate()) return;
+                Navigator.pop(ctx);
+                setState(() => _cargando = true);
+
+                try {
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  final uid = authProvider.usuarioFirebase!.uid;
+
+                  final itemsPorVendedor = <String, List<dynamic>>{};
+                  for (final moneda in carritoProvider.items) {
+                    if (!itemsPorVendedor.containsKey(moneda.vendedorId)) {
+                      itemsPorVendedor[moneda.vendedorId] = [];
+                    }
+                    itemsPorVendedor[moneda.vendedorId]!.add(moneda);
+                  }
+
+                  for (final entry in itemsPorVendedor.entries) {
+                    final vendedorId = entry.key;
+                    final monedas = entry.value;
+                    final total = monedas.fold<double>(0, (suma, m) => suma + m.precio);
+                    final pedidoId = const Uuid().v4();
+
+                    final items = monedas.map((m) => ItemPedido(
+                      itemId: const Uuid().v4(),
+                      pedidoId: pedidoId,
+                      monedaId: m.monedaId,
+                      precioUnitario: m.precio,
+                      tituloSnapshot: m.nom,
+                      esSubasta: carritoProvider.estaBloqueado(m.monedaId),
+                    )).toList();
+
+                    final pedido = Pedido(
+                      pedidoId: pedidoId,
+                      compradorId: uid,
+                      vendedorId: vendedorId,
+                      total: total,
+                      direccionEnvio: _direccionController.text.trim(),
+                      fechaCreacion: DateTime.now(),
+                    );
+
+                    await _pedidoService.crearPedido(pedido, items);
+                  }
+
+                  carritoProvider.vaciarTodo();
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(AppLocalizations.of(context)!.compraCorrecta),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    context.pop();
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${AppLocalizations.of(context)!.errorCompra}: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } finally {
+                  setState(() => _cargando = false);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB8860B),
+                foregroundColor: Colors.white,
               ),
-              maxLines: 2,
+              child: Text(AppLocalizations.of(context)!.pagar),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              setState(() => _cargando = true);
-
-              try {
-                // Agrupar items por vendedor para crear un pedido por vendedor
-                final itemsPorVendedor = <String, List<dynamic>>{};
-                for (final moneda in carritoProvider.items) {
-                  if (!itemsPorVendedor.containsKey(moneda.vendedorId)) {
-                    itemsPorVendedor[moneda.vendedorId] = [];
-                  }
-                  itemsPorVendedor[moneda.vendedorId]!.add(moneda);
-                }
-
-                // Crear un pedido por cada vendedor
-                for (final entry in itemsPorVendedor.entries) {
-                  final vendedorId = entry.key;
-                  final monedas = entry.value;
-
-                  // Calcular total de este vendedor
-                  final total = monedas.fold<double>(
-                      0, (suma, m) => suma + m.precio);
-
-                  // Generar ID del pedido
-                  final pedidoId = const Uuid().v4();
-
-                  // Crear items del pedido
-                  final items = monedas.map((m) => ItemPedido(
-                    itemId: const Uuid().v4(),
-                    pedidoId: pedidoId,
-                    monedaId: m.monedaId,
-                    precioUnitario: m.precio,
-                    tituloSnapshot: m.nom,
-                  )).toList();
-
-                  // Crear pedido
-                  final pedido = Pedido(
-                    pedidoId: pedidoId,
-                    compradorId: uid,
-                    vendedorId: vendedorId,
-                    total: total,
-                    direccionEnvio: _direccionController.text.trim().isEmpty
-                        ? null
-                        : _direccionController.text.trim(),
-                    fechaCreacion: DateTime.now(),
-                  );
-
-                  await _pedidoService.crearPedido(pedido, items);
-                }
-
-                // Vaciar el carrito después de comprar
-                carritoProvider.vaciar();
-
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Compra realizada correctamente!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                  context.pop();
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error al realizar la compra: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              } finally {
-                setState(() => _cargando = false);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB8860B),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Confirmar'),
-          ),
-        ],
       ),
     );
   }
@@ -160,11 +306,8 @@ class _CarritoScreenState extends State<CarritoScreen> {
     final carritoProvider = Provider.of<CarritoProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: const Text('Carrito'),
+        title: Text(AppLocalizations.of(context)!.carrito),
         actions: [
           // Botón vaciar carrito
           if (carritoProvider.items.isNotEmpty)
@@ -174,13 +317,12 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Vaciar carrito'),
-                    content: const Text(
-                        '¿Estás seguro de que quieres vaciar el carrito?'),
+                    title: Text(AppLocalizations.of(context)!.vaciarCarrito),
+                    content: Text(AppLocalizations.of(context)!.seguroVaciar),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancelar'),
+                        child: Text(AppLocalizations.of(context)!.cancelar),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -191,7 +333,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text('Vaciar'),
+                        child: Text(AppLocalizations.of(context)!.vaciar),
                       ),
                     ],
                   ),
@@ -210,13 +352,13 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 size: 80, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'Tu carrito está vacío',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              AppLocalizations.of(context)!.carritoVacio,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Añade monedas desde el catálogo',
-              style: TextStyle(color: Colors.grey),
+              AppLocalizations.of(context)!.anadeMonedas,
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -230,19 +372,10 @@ class _CarritoScreenState extends State<CarritoScreen> {
               itemCount: carritoProvider.items.length,
               itemBuilder: (context, index) {
                 final moneda = carritoProvider.items[index];
-                return Container(
+                return Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Row(
                     children: [
                       // Imagen de la moneda
@@ -280,6 +413,31 @@ class _CarritoScreenState extends State<CarritoScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Badge subasta ganada
+                              if (carritoProvider.estaBloqueado(moneda.monedaId))
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFB8860B).withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.emoji_events, size: 11, color: Color(0xFFB8860B)),
+                                      SizedBox(width: 3),
+                                      Text(
+                                        AppLocalizations.of(context)!.subastaGanada,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Color(0xFFB8860B),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               Text(
                                 moneda.nom,
                                 style: const TextStyle(
@@ -309,13 +467,19 @@ class _CarritoScreenState extends State<CarritoScreen> {
                         ),
                       ),
 
-                      // Botón eliminar del carrito
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline,
-                            color: Colors.red),
-                        onPressed: () =>
-                            carritoProvider.eliminar(moneda.monedaId),
-                      ),
+                      // Botón eliminar (solo si NO está bloqueado)
+                      if (!carritoProvider.estaBloqueado(moneda.monedaId))
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline,
+                              color: Colors.red),
+                          onPressed: () =>
+                              carritoProvider.eliminar(moneda.monedaId),
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Icon(Icons.lock, color: Colors.grey, size: 20),
+                        ),
                     ],
                   ),
                 );
@@ -327,7 +491,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
@@ -342,9 +506,9 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Total',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.total,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -372,12 +536,11 @@ class _CarritoScreenState extends State<CarritoScreen> {
                       foregroundColor: Colors.white,
                     ),
                     child: _cargando
-                        ? const CircularProgressIndicator(
-                        color: Colors.white)
-                        : const Text(
-                      'Confirmar compra',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            AppLocalizations.of(context)!.confirmarCompra,
+                            style: const TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
               ],

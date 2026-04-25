@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -62,7 +63,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -74,17 +74,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Image.asset(
                     'assets/images/logo.png',
-                    width: 250, // Reducido un poco para que quepa mejor en pantallas pequeñas
-                    height: 250,
+                    width: 600,
+                    height: 400,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Crear cuenta',
+                    'El Racó de la Numismàtica',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFFB8860B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    AppLocalizations.of(context)!.crearCuenta,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -99,8 +109,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Introduce tu email';
-                      if (!value.contains('@')) return 'El email no es válido';
+                      if (value == null || value.isEmpty) return AppLocalizations.of(context)!.introduceEmail;
+                      if (!value.contains('@')) return AppLocalizations.of(context)!.emailNoValido;
                       return null;
                     },
                   ),
@@ -111,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     obscureText: !_verPassword,
                     decoration: InputDecoration(
-                      labelText: 'Contraseña',
+                      labelText: AppLocalizations.of(context)!.password,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
@@ -120,8 +130,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Introduce tu contraseña';
-                      if (value.length < 6) return 'Mínimo 6 caracteres';
+                      if (value == null || value.isEmpty) return AppLocalizations.of(context)!.introducePassword;
+                      if (value.length < 6) return AppLocalizations.of(context)!.passwordCorto;
                       return null;
                     },
                   ),
@@ -132,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _confirmarPasswordController,
                     obscureText: !_verConfirmarPassword,
                     decoration: InputDecoration(
-                      labelText: 'Confirmar contraseña',
+                      labelText: AppLocalizations.of(context)!.confirmarPassword,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
@@ -141,8 +151,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Confirma tu contraseña';
-                      if (value != _passwordController.text) return 'Las contraseñas no coinciden';
+                      if (value == null || value.isEmpty) return AppLocalizations.of(context)!.introducePassword; // reuse or add confirm
+                      if (value != _passwordController.text) return AppLocalizations.of(context)!.passwordsNoCoinciden;
                       return null;
                     },
                   ),
@@ -160,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: authProvider.cargando
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Crear cuenta', style: TextStyle(fontSize: 16)),
+                          : Text(AppLocalizations.of(context)!.crearCuenta, style: const TextStyle(fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -168,7 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextButton(
                     onPressed: () => context.go('/login'),
                     child: const Text(
-                      '¿Ya tienes cuenta? Inicia sesión',
+                      AppLocalizations.of(context)!.yaTienesCuenta,
                       style: TextStyle(color: Color(0xFFB8860B)),
                     ),
                   ),

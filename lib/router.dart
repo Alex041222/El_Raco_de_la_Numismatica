@@ -14,6 +14,7 @@ import 'screens/carrito/carrito_screen.dart';
 import 'screens/chat/chat_screen.dart';
 import 'screens/perfil/perfil_screen.dart';
 import 'screens/perfil/editar_perfil_screen.dart';
+import 'screens/perfil/ajustes_screen.dart';
 import 'screens/vendedores/vendedores_recomendados_screen.dart';
 
 GoRouter createRouter(BuildContext context) {
@@ -123,6 +124,10 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/vendedores-recomendados',
         builder: (context, state) => const VendedoresRecomendadosScreen(),
+      ),
+      GoRoute(
+        path: '/ajustes',
+        builder: (context, state) => const AjustesScreen(),
       ),
     ],
   );

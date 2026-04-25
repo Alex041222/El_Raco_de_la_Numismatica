@@ -7,6 +7,8 @@ import '../../services/chat_service.dart';
 import '../../models/chat_model.dart';
 import '../../models/usuario_model.dart';
 import '../../services/usuario_service.dart';
+import '../l10n/app_localizations.dart';
+import '../../widgets/imagen_widget.dart';
 
 class ListaChatsScreen extends StatelessWidget {
   const ListaChatsScreen({super.key});
@@ -14,15 +16,21 @@ class ListaChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final firebaseUser = authProvider.usuarioFirebase;
+
+    // Si no hay usuario (ej. cerrando sesión), evitamos el crash
+    if (firebaseUser == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Color(0xFFB8860B))),
+      );
+    }
+
     final chatService = ChatService();
-    final miUid = authProvider.usuarioFirebase!.uid;
+    final miUid = firebaseUser.uid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: const Text('Chats'),
+        title: Text(AppLocalizations.of(context)!.xats),
         automaticallyImplyLeading: false,
       ),
       body: StreamBuilder<List<Chat>>(
@@ -49,13 +57,13 @@ class ListaChatsScreen extends StatelessWidget {
                   Icon(Icons.chat_outlined, size: 80, color: Colors.grey),
                   SizedBox(height: 16),
                   Text(
-                    'No tienes conversaciones',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    AppLocalizations.of(context)!.noConversaciones,
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Contacta con un vendedor desde el catálogo',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.contactarVendedorCatalogo,
+                    style: const TextStyle(color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -104,7 +112,7 @@ class _TarjetaChat extends StatelessWidget {
       future: UsuarioService().obtenerUsuario(otroUsuarioId),
       builder: (context, snapshot) {
         final usuario = snapshot.data;
-        final nombreUsuario = usuario?.nombreUsuario ?? 'Cargando...';
+        final nombreUsuario = usuario?.nombreUsuario ?? AppLocalizations.of(context)!.cargando;
         final fotoPerfil = usuario?.fotoPerfil ?? '';
 
         return ListTile(
@@ -112,13 +120,9 @@ class _TarjetaChat extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
 
           // Avatar del otro usuario
-          leading: CircleAvatar(
+          leading: FotoPerfilWidget(
+            fotoPerfil: fotoPerfil,
             radius: 28,
-            backgroundColor: const Color(0xFFB8860B).withOpacity(0.2),
-            backgroundImage: fotoPerfil.isNotEmpty ? NetworkImage(fotoPerfil) : null,
-            child: fotoPerfil.isEmpty
-                ? const Icon(Icons.person, color: Color(0xFFB8860B))
-                : null,
           ),
 
           // Nombre del otro usuario e último mensaje
@@ -130,7 +134,7 @@ class _TarjetaChat extends StatelessWidget {
           ),
           subtitle: Text(
             chat.ultimoMensaje.isEmpty
-                ? 'Inicia la conversación'
+                ? AppLocalizations.of(context)!.iniciaConversacion
                 : chat.ultimoMensaje,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -139,7 +143,7 @@ class _TarjetaChat extends StatelessWidget {
 
           // Fecha del último mensaje
           trailing: Text(
-            _formatearFecha(chat.fechaUltimoMensaje),
+            _formatearFecha(context, chat.fechaUltimoMensaje),
             style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
         );
@@ -148,18 +152,19 @@ class _TarjetaChat extends StatelessWidget {
   }
 
   // Formatear fecha del último mensaje
-  String _formatearFecha(DateTime fecha) {
+  String _formatearFecha(BuildContext context, DateTime fecha) {
     final ahora = DateTime.now();
     final diferencia = ahora.difference(fecha);
+    final locale = Localizations.localeOf(context).toString();
 
     if (diferencia.inDays == 0) {
       // Hoy mostramos la hora
       return DateFormat('HH:mm').format(fecha);
     } else if (diferencia.inDays == 1) {
-      return 'Ayer';
+      return AppLocalizations.of(context)!.ayer;
     } else if (diferencia.inDays < 7) {
       // Esta semana mostramos el día
-      return DateFormat('EEEE', 'es').format(fecha);
+      return DateFormat('EEEE', locale).format(fecha);
     } else {
       // Más de una semana mostramos la fecha
       return DateFormat('dd/MM/yyyy').format(fecha);

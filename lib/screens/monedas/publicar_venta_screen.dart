@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../models/moneda_venta_model.dart';
+import '../l10n/app_localizations.dart';
 
 
 class PublicarVentaScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
     // Máximo 5 imágenes por moneda
     if (_imagenes.length >= 5) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Máximo 5 imágenes por moneda')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.max5Imagenes)),
       );
       return;
     }
@@ -85,7 +86,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
     if (_imagenes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Añade al menos una imagen de la moneda'),
+          content: Text(AppLocalizations.of(context)!.alMenosUnaImagen),
           backgroundColor: Colors.red,
         ),
       );
@@ -159,7 +160,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB8860B),
         foregroundColor: Colors.white,
-        title: const Text('Publicar venta'),
+        title: Text(AppLocalizations.of(context)!.publicarVenta),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -170,9 +171,9 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
             children: [
 
               // Sección imágenes
-              const Text(
-                'Imágenes',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.imagenes,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFB8860B),
@@ -254,26 +255,26 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
               // Sección información general
               _SeccionFormulario(
-                titulo: 'Información general',
+                titulo: AppLocalizations.of(context)!.infoGeneral,
                 children: [
                   _CampoTexto(
                     controller: _nomController,
-                    label: 'Nom de la moneda',
+                    label: AppLocalizations.of(context)!.nomMoneda,
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _paisController,
-                    label: 'País',
+                    label: AppLocalizations.of(context)!.pais,
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _periodoController,
-                    label: 'Periodo',
+                    label: AppLocalizations.of(context)!.periodo,
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _unidadMonetariaController,
-                    label: 'Unidad monetaria',
+                    label: AppLocalizations.of(context)!.unidadMonetaria,
                     obligatorio: true,
                   ),
                 ],
@@ -282,41 +283,41 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
               // Sección características físicas
               _SeccionFormulario(
-                titulo: 'Características físicas',
+                titulo: AppLocalizations.of(context)!.caractFisicas,
                 children: [
                   _CampoTexto(
                     controller: _composicionController,
-                    label: 'Composición',
+                    label: AppLocalizations.of(context)!.composicion,
                     obligatorio: true,
                   ),
                   _CampoNumero(
                     controller: _pesoController,
-                    label: 'Peso (g)',
+                    label: '${AppLocalizations.of(context)!.peso} (g)',
                     obligatorio: true,
                   ),
                   _CampoNumero(
                     controller: _diametroController,
-                    label: 'Diámetro (mm)',
+                    label: '${AppLocalizations.of(context)!.diametro} (mm)',
                     obligatorio: true,
                   ),
                   _CampoNumero(
                     controller: _grosorController,
-                    label: 'Grosor (mm)',
+                    label: '${AppLocalizations.of(context)!.grosor} (mm)',
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _formaController,
-                    label: 'Forma',
+                    label: AppLocalizations.of(context)!.forma,
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _tecnicaController,
-                    label: 'Técnica de acuñación',
+                    label: AppLocalizations.of(context)!.tecnicaAcuniacion,
                     obligatorio: true,
                   ),
                   _CampoTexto(
                     controller: _estadoConservacionController,
-                    label: 'Estado de conservación',
+                    label: AppLocalizations.of(context)!.estadoConservacion,
                     obligatorio: true,
                   ),
                 ],
@@ -325,11 +326,11 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
               // Sección precio
               _SeccionFormulario(
-                titulo: 'Precio',
+                titulo: AppLocalizations.of(context)!.precio,
                 children: [
                   _CampoNumero(
                     controller: _precioController,
-                    label: 'Precio (€)',
+                    label: '${AppLocalizations.of(context)!.precio} (€)',
                     obligatorio: true,
                   ),
                 ],
@@ -348,9 +349,9 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
                   ),
                   child: _cargando
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    'Publicar moneda',
-                    style: TextStyle(fontSize: 16),
+                      : Text(
+                    AppLocalizations.of(context)!.publicar,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -433,7 +434,7 @@ class _CampoTexto extends StatelessWidget {
       validator: obligatorio
           ? (value) {
         if (value == null || value.isEmpty) {
-          return 'Este campo es obligatorio';
+          return AppLocalizations.of(context)!.esteCampoObligatorio;
         }
         return null;
       }
@@ -468,13 +469,13 @@ class _CampoNumero extends StatelessWidget {
       validator: obligatorio
           ? (value) {
         if (value == null || value.isEmpty) {
-          return 'Este campo es obligatorio';
+          return AppLocalizations.of(context)!.esteCampoObligatorio;
         }
         if (double.tryParse(value) == null) {
-          return 'Introduce un número válido';
+          return AppLocalizations.of(context)!.introduceNumeroValido;
         }
         if (double.parse(value) <= 0) {
-          return 'El valor debe ser mayor que 0';
+          return AppLocalizations.of(context)!.valorMayorCero;
         }
         return null;
       }

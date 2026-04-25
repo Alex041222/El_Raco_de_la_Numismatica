@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ImagenWidget extends StatelessWidget {
   final String imagen;
@@ -50,13 +50,16 @@ class ImagenWidget extends StatelessWidget {
           ),
         );
       } else {
-        // Mostrar imagen desde URL
-        return Image.network(
-          imagen,
+        // Mostrar imagen desde URL con caché
+        return CachedNetworkImage(
+          imageUrl: imagen,
           width: width,
           height: height,
           fit: fit,
-          errorBuilder: (context, error, stackTrace) =>
+          placeholder: (context, url) => placeholder ?? const Center(
+            child: CircularProgressIndicator(color: Color(0xFFB8860B)),
+          ),
+          errorWidget: (context, url, error) =>
           placeholder ?? const Center(
             child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
           ),
@@ -103,7 +106,7 @@ class FotoPerfilWidget extends StatelessWidget {
         // URL
         return CircleAvatar(
           radius: radius,
-          backgroundImage: NetworkImage(fotoPerfil),
+          backgroundImage: CachedNetworkImageProvider(fotoPerfil),
         );
       }
     } catch (e) {

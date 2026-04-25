@@ -135,6 +135,22 @@ class MonedaService {
         .map((doc) => doc.exists ? MonedaSubasta.fromFirestore(doc) : null);
   }
 
+  // Obtener una subasta por su ID (Future)
+  Future<MonedaSubasta?> obtenerMonedaSubasta(String monedaId) async {
+    try {
+      final doc = await _firestore
+          .collection('monedas_subasta')
+          .doc(monedaId)
+          .get();
+      if (doc.exists) {
+        return MonedaSubasta.fromFirestore(doc);
+      }
+      return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Publicar una subasta nueva
   // Se usa en la pantalla de publicar subasta
   Future<void> publicarSubasta(MonedaSubasta moneda) async {
@@ -162,6 +178,19 @@ class MonedaService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  // Obtenir les subastes guanyades per un usuari
+  Stream<List<MonedaSubasta>> obtenerSubastasGanadas(String usuarioId) {
+    return _firestore
+        .collection('monedas_subasta')
+        .where('ganadorId', isEqualTo: usuarioId)
+        .snapshots()
+        .map((query) => query.docs
+            .map((doc) => MonedaSubasta.fromFirestore(doc))
+            // Filtrem per les que ja han acabat el temps
+            .where((m) => DateTime.now().isAfter(m.fechaFin))
+            .toList());
   }
 
   // ─── IMÁGENES ────────────────────────────────────────────────────

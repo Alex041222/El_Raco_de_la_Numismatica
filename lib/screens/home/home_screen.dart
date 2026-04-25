@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/carrito_provider.dart';
+import 'dart:async';
 import '../monedas/catalogo_screen.dart';
 import '../subasta/detalle_subasta_screen.dart';
 import '../chat/lista_chats_screen.dart';
 import '../perfil/perfil_screen.dart';
 import '../vendedores/vendedores_recomendados_screen.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/carrito_provider.dart';
+import '../../services/moneda_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,10 +32,39 @@ class _HomeScreenState extends State<HomeScreen> {
     const PerfilScreen(),
   ];
 
+  final _monedaService = MonedaService();
+  StreamSubscription? _subastaSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // Escoltador global de subastes guanyades
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final miUid = authProvider.usuarioFirebase?.uid;
+      
+      if (miUid != null) {
+        _subastaSubscription = _monedaService.obtenerSubastasGanadas(miUid).listen((subastas) {
+          if (!mounted) return;
+          final carritoProvider = Provider.of<CarritoProvider>(context, listen: false);
+          for (final subasta in subastas) {
+            if (!carritoProvider.estaEnCarrito(subasta.monedaId)) {
+              carritoProvider.agregarItemDeSubasta(subasta);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subastaSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final carritoProvider = Provider.of<CarritoProvider>(context);
-
     return Scaffold(
       // Muestra la pantalla activa según el índice
       body: _pantallas[_indicePestana],
@@ -62,42 +94,34 @@ class _HomeScreenState extends State<HomeScreen> {
         indicatorColor: const Color(0xFFB8860B).withOpacity(0.2),
         destinations: [
           // Pestaña catálogo
-          const NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront, color: Color(0xFFB8860B)),
-            label: 'Catálogo',
+          NavigationDestination(
+            icon: const Icon(Icons.storefront_outlined),
+            selectedIcon: const Icon(Icons.storefront, color: Color(0xFFB8860B)),
+            label: AppLocalizations.of(context)!.cataleg,
           ),
           // Pestaña subastas
-          const NavigationDestination(
-            icon: Icon(Icons.gavel_outlined),
-            selectedIcon: Icon(Icons.gavel, color: Color(0xFFB8860B)),
-            label: 'Subastas',
+          NavigationDestination(
+            icon: const Icon(Icons.gavel_outlined),
+            selectedIcon: const Icon(Icons.gavel, color: Color(0xFFB8860B)),
+            label: AppLocalizations.of(context)!.subhastes,
           ),
           // Pestaña chats
-          const NavigationDestination(
-            icon: Icon(Icons.chat_outlined),
-            selectedIcon: Icon(Icons.chat, color: Color(0xFFB8860B)),
-            label: 'Chats',
+          NavigationDestination(
+            icon: const Icon(Icons.chat_outlined),
+            selectedIcon: const Icon(Icons.chat, color: Color(0xFFB8860B)),
+            label: AppLocalizations.of(context)!.xats,
           ),
           // Pestaña vendedores recomendados
-          const NavigationDestination(
-            icon: Icon(Icons.star_outlined),
-            selectedIcon: Icon(Icons.star, color: Color(0xFFB8860B)),
-            label: 'Top vendedores',
-          ),
-          // Pestaña perfil con badge del carrito
           NavigationDestination(
-            icon: Badge(
-              isLabelVisible: carritoProvider.cantidad > 0,
-              label: Text('${carritoProvider.cantidad}'),
-              child: const Icon(Icons.person_outlined),
-            ),
-            selectedIcon: Badge(
-              isLabelVisible: carritoProvider.cantidad > 0,
-              label: Text('${carritoProvider.cantidad}'),
-              child: const Icon(Icons.person, color: Color(0xFFB8860B)),
-            ),
-            label: 'Perfil',
+            icon: const Icon(Icons.star_outlined),
+            selectedIcon: const Icon(Icons.star, color: Color(0xFFB8860B)),
+            label: AppLocalizations.of(context)!.topVenedors,
+          ),
+          // Pestaña perfil
+          NavigationDestination(
+            icon: const Icon(Icons.person_outlined),
+            selectedIcon: const Icon(Icons.person, color: Color(0xFFB8860B)),
+            label: AppLocalizations.of(context)!.perfil,
           ),
         ],
       ),

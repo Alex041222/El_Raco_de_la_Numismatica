@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import '../models/chat_model.dart';
 import '../models/mensaje_model.dart';
+import 'cloudinary_service.dart';
 
 class ChatService {
-  // Instancias de Firestore y Storage
+  // Instancias de Firestore y Cloudinary
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   // Obtener todos los chats de un usuario en tiempo real
   // Se usa en la pantalla de lista de chats
@@ -118,16 +118,15 @@ class ChatService {
   }
 
   // Enviar un mensaje con imagen
-  // Primero sube la imagen a Storage y luego guarda la URL en Firestore
+  // Primero sube la imagen a Cloudinary y luego guarda la URL en Firestore
   Future<void> enviarMensajeImagen(
       String chatId, String emisorId, File imagen) async {
     try {
-      // Subir imagen a Storage con un nombre único basado en la fecha
-      final ref = _storage
-          .ref()
-          .child('imagenes_chat/$chatId/${DateTime.now().millisecondsSinceEpoch}.jpg');
-      await ref.putFile(imagen);
-      final url = await ref.getDownloadURL();
+      // Subir imagen a Cloudinary
+      final url = await _cloudinaryService.subirImagen(
+          imagen, 
+          'chats/$chatId'
+      );
 
       // Crear el documento del mensaje con la URL de la imagen
       final mensajeRef = _firestore.collection('mensajes').doc();

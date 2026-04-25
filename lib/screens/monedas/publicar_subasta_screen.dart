@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../models/moneda_subasta_model.dart';
+import '../l10n/app_localizations.dart';
 
 class PublicarSubastaScreen extends StatefulWidget {
   const PublicarSubastaScreen({super.key});
@@ -61,7 +62,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
   Future<void> _seleccionarImagenes() async {
     if (_imagenes.length >= 5) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Máximo 5 imágenes por moneda')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.max5Imagenes)),
       );
       return;
     }
@@ -86,7 +87,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
     if (_imagenes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Añade al menos una imagen de la moneda'),
+          content: Text(AppLocalizations.of(context)!.alMenosUnaImagen),
           backgroundColor: Colors.red,
         ),
       );
@@ -148,7 +149,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Subasta publicada correctamente'),
+          content: Text(AppLocalizations.of(context)!.publicadoCorrecto),
             backgroundColor: Colors.green,
           ),
         );
@@ -175,7 +176,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB8860B),
         foregroundColor: Colors.white,
-        title: const Text('Publicar subasta'),
+        title: Text(AppLocalizations.of(context)!.publicarSubasta),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -186,9 +187,9 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
             children: [
 
               // Sección imágenes
-              const Text(
-                'Imágenes',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.imagenes,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFB8860B),
@@ -271,23 +272,23 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
               // Sección información general
               _SeccionFormulario(
-                titulo: 'Información general',
+                titulo: AppLocalizations.of(context)!.infoGeneral,
                 children: [
                   _CampoTexto(
                     controller: _nomController,
-                    label: 'Nom de la moneda',
+                    label: AppLocalizations.of(context)!.nomMoneda,
                   ),
                   _CampoTexto(
                     controller: _paisController,
-                    label: 'País',
+                    label: AppLocalizations.of(context)!.pais,
                   ),
                   _CampoTexto(
                     controller: _periodoController,
-                    label: 'Periodo',
+                    label: AppLocalizations.of(context)!.periodo,
                   ),
                   _CampoTexto(
                     controller: _unidadMonetariaController,
-                    label: 'Unidad monetaria',
+                    label: AppLocalizations.of(context)!.unidadMonetaria,
                   ),
                 ],
               ),
@@ -295,35 +296,35 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
               // Sección características físicas
               _SeccionFormulario(
-                titulo: 'Características físicas',
+                titulo: AppLocalizations.of(context)!.caractFisicas,
                 children: [
                   _CampoTexto(
                     controller: _composicionController,
-                    label: 'Composición',
+                    label: AppLocalizations.of(context)!.composicion,
                   ),
                   _CampoNumero(
                     controller: _pesoController,
-                    label: 'Peso (g)',
+                    label: '${AppLocalizations.of(context)!.peso} (g)',
                   ),
                   _CampoNumero(
                     controller: _diametroController,
-                    label: 'Diámetro (mm)',
+                    label: '${AppLocalizations.of(context)!.diametro} (mm)',
                   ),
                   _CampoNumero(
                     controller: _grosorController,
-                    label: 'Grosor (mm)',
+                    label: '${AppLocalizations.of(context)!.grosor} (mm)',
                   ),
                   _CampoTexto(
                     controller: _formaController,
-                    label: 'Forma',
+                    label: AppLocalizations.of(context)!.forma,
                   ),
                   _CampoTexto(
                     controller: _tecnicaController,
-                    label: 'Técnica de acuñación',
+                    label: AppLocalizations.of(context)!.tecnicaAcuniacion,
                   ),
                   _CampoTexto(
                     controller: _estadoConservacionController,
-                    label: 'Estado de conservación',
+                    label: AppLocalizations.of(context)!.estadoConservacion,
                   ),
                 ],
               ),
@@ -331,19 +332,19 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
               // Sección subasta
               _SeccionFormulario(
-                titulo: 'Configuración de la subasta',
+                titulo: AppLocalizations.of(context)!.configuracionSubasta,
                 children: [
                   // Precio de salida
                   _CampoNumero(
                     controller: _precioSalidaController,
-                    label: 'Precio de salida (€)',
+                    label: AppLocalizations.of(context)!.precioSalida,
                   ),
                   const SizedBox(height: 4),
 
                   // Seleccionar fecha y hora de fin
-              const Text(
-                'Duración de la subasta',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.duracionSubasta,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFB8860B),
@@ -364,8 +365,8 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
                     children: [
                       Text(
                         _fechaFinElegida == null
-                            ? 'Seleccionar fecha y hora de fin'
-                            : _formatearFecha(_fechaFinElegida!),
+                            ? AppLocalizations.of(context)!.seleccionarFechaFin
+                            : _formatearFecha(context, _fechaFinElegida!),
                         style: TextStyle(
                           color: _fechaFinElegida == null ? Colors.grey : Colors.black,
                         ),
@@ -391,9 +392,9 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
                   ),
                   child: _cargando
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    'Publicar subasta',
-                    style: TextStyle(fontSize: 16),
+                      : Text(
+                    AppLocalizations.of(context)!.publicar,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -432,11 +433,11 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
   }
 
   // Formatear la fecha elegida
-  String _formatearFecha(DateTime fecha) {
+  String _formatearFecha(BuildContext context, DateTime fecha) {
     return '${fecha.day.toString().padLeft(2, '0')}/'
         '${fecha.month.toString().padLeft(2, '0')}/'
         '${fecha.year} '
-        'a las ${fecha.hour.toString().padLeft(2, '0')}:'
+        '${AppLocalizations.of(context)!.alas} ${fecha.hour.toString().padLeft(2, '0')}:'
         '${fecha.minute.toString().padLeft(2, '0')}';
   }
 }
@@ -504,7 +505,7 @@ class _CampoTexto extends StatelessWidget {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Este campo es obligatorio';
+          return AppLocalizations.of(context)!.esteCampoObligatorio;
         }
         return null;
       },
@@ -531,13 +532,13 @@ class _CampoNumero extends StatelessWidget {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Este campo es obligatorio';
+          return AppLocalizations.of(context)!.esteCampoObligatorio;
         }
         if (double.tryParse(value) == null) {
-          return 'Introduce un número válido';
+          return AppLocalizations.of(context)!.introduceNumeroValido;
         }
         if (double.parse(value) <= 0) {
-          return 'El valor debe ser mayor que 0';
+          return AppLocalizations.of(context)!.valorMayorCero;
         }
         return null;
       },

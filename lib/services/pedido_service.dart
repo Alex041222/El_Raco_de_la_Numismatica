@@ -30,8 +30,9 @@ class PedidoService {
 
         // Marcar cada moneda como no disponible
         for (final item in items) {
+          final coleccion = item.esSubasta ? 'monedas_subasta' : 'monedas_venta';
           final monedaRef = _firestore
-              .collection('monedas_venta')
+              .collection(coleccion)
               .doc(item.monedaId);
           transaction.update(monedaRef, {'disponible': false});
         }

@@ -12,8 +12,10 @@ import '../../services/usuario_service.dart';
 import '../../models/moneda_venta_model.dart';
 import '../../models/moneda_subasta_model.dart';
 import '../../models/pedido_model.dart';
+import '../../models/item_pedido_model.dart';
 import '../../models/resena_model.dart';
 import '../../models/usuario_model.dart';
+import '../l10n/app_localizations.dart';
 
 class PerfilScreen extends StatefulWidget {
   // Si uid es null mostramos nuestro propio perfil
@@ -66,7 +68,7 @@ class _PerfilScreenState extends State<PerfilScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Dejar reseña'),
+          title: Text(AppLocalizations.of(context)!.dejarResena),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -98,7 +100,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Positivo',
+                              AppLocalizations.of(context)!.positivo,
                               style: TextStyle(
                                 color: _tipoResena == 'positivo'
                                     ? Colors.white
@@ -138,7 +140,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Negativo',
+                              AppLocalizations.of(context)!.negativo,
                               style: TextStyle(
                                 color: _tipoResena == 'negativo'
                                     ? Colors.white
@@ -160,10 +162,10 @@ class _PerfilScreenState extends State<PerfilScreen>
                 controller: _comentarioController,
                 maxLines: 3,
                 maxLength: 200,
-                decoration: const InputDecoration(
-                  labelText: 'Comentario',
-                  border: OutlineInputBorder(),
-                  hintText: 'Escribe tu experiencia con este vendedor...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.comentario,
+                  border: const OutlineInputBorder(),
+                  hintText: AppLocalizations.of(context)!.escribeComentario,
                 ),
               ),
             ],
@@ -171,7 +173,7 @@ class _PerfilScreenState extends State<PerfilScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancelar),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -221,7 +223,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                 backgroundColor: const Color(0xFFB8860B),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Enviar'),
+              child: Text(AppLocalizations.of(context)!.enviar),
             ),
           ],
         ),
@@ -232,14 +234,22 @@ class _PerfilScreenState extends State<PerfilScreen>
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final miUid = authProvider.usuarioFirebase!.uid;
+    final firebaseUser = authProvider.usuarioFirebase;
+
+    // Si no hay usuario (ej. cerrando sesión), mostramos un cargando para evitar pantalla roja
+    if (firebaseUser == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Color(0xFFB8860B))),
+      );
+    }
+
+    final miUid = firebaseUser.uid;
 
     // Si uid es null mostramos nuestro perfil
     final perfilUid = widget.uid ?? miUid;
     final esMiPerfil = perfilUid == miUid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       body: StreamBuilder<Usuario?>(
         stream: _usuarioService.escucharUsuario(perfilUid),
         builder: (context, snapshot) {
@@ -254,12 +264,17 @@ class _PerfilScreenState extends State<PerfilScreen>
           return NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverAppBar(
-                expandedHeight: 280, // Aumentamos la altura para que no esté pegado
+                expandedHeight: 340,
                 pinned: true,
                 backgroundColor: const Color(0xFFB8860B),
                 foregroundColor: Colors.white,
                 automaticallyImplyLeading: !esMiPerfil,
                 actions: [
+                  if (esMiPerfil)
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () => context.push('/ajustes'),
+                    ),
                   if (esMiPerfil)
                     IconButton(
                       icon: const Icon(Icons.edit_outlined),
@@ -281,14 +296,13 @@ class _PerfilScreenState extends State<PerfilScreen>
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFF8B6508), // Un tono más oscuro arriba
-                          Color(0xFFB8860B),
-                        ],
+                        colors: Theme.of(context).brightness == Brightness.dark
+                            ? [const Color(0xFF1A1406), const Color(0xFF2D2208)]
+                            : [const Color(0xFF8B6508), const Color(0xFFB8860B)],
                       ),
                     ),
                     child: Column(
@@ -358,7 +372,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '${usuario?.puntuacion ?? 0} puntos de reputación',
+                                '${usuario?.puntuacion ?? 0} ${AppLocalizations.of(context)!.reputacion}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -368,6 +382,43 @@ class _PerfilScreenState extends State<PerfilScreen>
                             ],
                           ),
                         ),
+                        // Biografia
+                        if (usuario?.biografia != null && usuario!.biografia.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Text(
+                              usuario.biografia,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+
+                        // Direcció
+                        if (usuario?.direccion != null && usuario!.direccion.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.location_on, size: 13, color: Colors.white60),
+                              const SizedBox(width: 4),
+                              Text(
+                                usuario.direccion,
+                                style: const TextStyle(
+                                  color: Colors.white60,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+
                         const SizedBox(height: 20), // Espacio antes de las tabs
                       ],
                     ),
@@ -380,11 +431,11 @@ class _PerfilScreenState extends State<PerfilScreen>
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white60,
                   isScrollable: true,
-                  tabs: const [
-                    Tab(text: 'En venta'),
-                    Tab(text: 'Subastas'),
-                    Tab(text: 'Compras'),
-                    Tab(text: 'Reseñas'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.misVentas),
+                    Tab(text: AppLocalizations.of(context)!.subhastes),
+                    Tab(text: AppLocalizations.of(context)!.compres),
+                    Tab(text: AppLocalizations.of(context)!.ressenyes),
                   ],
                 ),
               ),
@@ -412,8 +463,8 @@ class _PerfilScreenState extends State<PerfilScreen>
                 )
                     : const Center(
                   child: Text(
-                    'Solo puedes ver tus propias compras',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.soloTusCompras,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
 
@@ -453,9 +504,9 @@ class _MonedasEnVenta extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text('No hay monedas en venta',
-                style: TextStyle(color: Colors.grey)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noHayMonedas,
+                style: const TextStyle(color: Colors.grey)),
           );
         }
 
@@ -473,18 +524,9 @@ class _MonedasEnVenta extends StatelessWidget {
             return GestureDetector(
               onTap: () =>
                   context.push('/detalle-moneda/${moneda.monedaId}'),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -543,7 +585,7 @@ class _MonedasEnVenta extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              moneda.disponible ? 'Disponible' : 'Vendida',
+                              moneda.disponible ? AppLocalizations.of(context)!.disponible : AppLocalizations.of(context)!.venut,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: moneda.disponible
@@ -588,9 +630,9 @@ class _SubastasUsuario extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text('No hay subastas',
-                style: TextStyle(color: Colors.grey)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noHaySubastas,
+                style: const TextStyle(color: Colors.grey)),
           );
         }
 
@@ -604,21 +646,13 @@ class _SubastasUsuario extends StatelessWidget {
             return GestureDetector(
               onTap: () => context
                   .push('/detalle-subasta/${moneda.monedaId}'),
-              child: Container(
+              child: Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
                   children: [
                     // Imagen
                     ClipRRect(
@@ -661,8 +695,8 @@ class _SubastasUsuario extends StatelessWidget {
                           ),
                           Text(
                             haTerminado
-                                ? 'Terminada'
-                                : 'Termina: ${DateFormat('dd/MM/yyyy').format(moneda.fechaFin)}',
+                                ? AppLocalizations.of(context)!.terminada
+                                : '${AppLocalizations.of(context)!.termina}: ${DateFormat('dd/MM/yyyy').format(moneda.fechaFin)}',
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -674,6 +708,7 @@ class _SubastasUsuario extends StatelessWidget {
                     ),
                     const Icon(Icons.chevron_right, color: Colors.grey),
                   ],
+                ),
                 ),
               ),
             );
@@ -706,9 +741,9 @@ class _MisCompras extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text('No has realizado ninguna compra',
-                style: TextStyle(color: Colors.grey)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noHayCompras,
+                style: const TextStyle(color: Colors.grey)),
           );
         }
 
@@ -717,59 +752,101 @@ class _MisCompras extends StatelessWidget {
           itemCount: snapshot.data!.length,
           itemBuilder: (context, index) {
             final pedido = snapshot.data![index];
-            return Container(
+            return Card(
               margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Pedido #${pedido.pedidoId.substring(0, 8)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: FutureBuilder<List<ItemPedido>>(
+                  future: PedidoService().obtenerItemsPedido(pedido.pedidoId),
+                  builder: (context, itemsSnapshot) {
+                    final primerItem = itemsSnapshot.hasData && itemsSnapshot.data!.isNotEmpty 
+                        ? itemsSnapshot.data!.first 
+                        : null;
+
+                    return Row(
+                      children: [
+                        // Foto del primer artículo
+                        if (primerItem != null)
+                          FutureBuilder<dynamic>(
+                            future: primerItem.esSubasta 
+                                ? MonedaService().obtenerMonedaSubasta(primerItem.monedaId)
+                                : MonedaService().obtenerMonedaVenta(primerItem.monedaId),
+                            builder: (context, monedaSnapshot) {
+                              final foto = monedaSnapshot.hasData && (monedaSnapshot.data!.imagenes as List).isNotEmpty
+                                  ? monedaSnapshot.data!.imagenes.first
+                                  : null;
+                              
+                              return Container(
+                                width: 60,
+                                height: 60,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.grey.shade200,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: foto != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: foto,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : const Icon(Icons.monetization_on, color: Colors.grey),
+                                ),
+                              );
+                            },
+                          ),
+                        
+                        // Información del pedido
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Pedido #${pedido.pedidoId.substring(0, 8)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${pedido.total.toStringAsFixed(2)} €',
+                                    style: const TextStyle(
+                                      color: Color(0xFFB8860B),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat('dd/MM/yyyy HH:mm')
+                                    .format(pedido.fechaCreacion),
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.grey),
+                              ),
+                              if (pedido.direccionEnvio != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Envío a: ${pedido.direccionEnvio}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey, overflow: TextOverflow.ellipsis),
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${pedido.total.toStringAsFixed(2)} €',
-                        style: const TextStyle(
-                          color: Color(0xFFB8860B),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd/MM/yyyy HH:mm')
-                        .format(pedido.fechaCreacion),
-                    style: const TextStyle(
-                        fontSize: 12, color: Colors.grey),
-                  ),
-                  if (pedido.direccionEnvio != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'Envío a: ${pedido.direccionEnvio}',
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ],
+                      ],
+                    );
+                  },
+                ),
               ),
             );
           },
@@ -801,9 +878,9 @@ class _Resenas extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text('No hay reseñas todavía',
-                style: TextStyle(color: Colors.grey)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.capRessenya,
+                style: const TextStyle(color: Colors.grey)),
           );
         }
 
@@ -814,26 +891,20 @@ class _Resenas extends StatelessWidget {
             final resena = snapshot.data![index];
             final esPositiva = resena.tipo == 'positivo';
 
-            return Container(
+            return Card(
               margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
+                side: BorderSide(
                   color: esPositiva
                       ? Colors.green.shade200
                       : Colors.red.shade200,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
-              child: Row(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Icono positivo / negativo
@@ -844,11 +915,25 @@ class _Resenas extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
 
-                  // Comentario y fecha
+                  // Comentario, usuario y fecha
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        FutureBuilder<Usuario?>(
+                          future: UsuarioService().obtenerUsuario(resena.autorId),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data?.nombreUsuario ?? 'Usuario',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Color(0xFFB8860B),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 2),
                         Text(
                           resena.comentario,
                           style: const TextStyle(fontSize: 14),
@@ -865,6 +950,7 @@ class _Resenas extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             );
           },
         );

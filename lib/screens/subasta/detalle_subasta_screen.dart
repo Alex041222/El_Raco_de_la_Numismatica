@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/carrito_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../services/subasta_service.dart';
 import '../../models/moneda_subasta_model.dart';
 import '../../models/puja_model.dart';
 import '../../models/usuario_model.dart';
 import '../../services/usuario_service.dart';
+import '../l10n/app_localizations.dart';
 
 class DetalleSubastaScreen extends StatefulWidget {
   final String? monedaId;
@@ -25,12 +27,15 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
   final _subastaService = SubastaService();
   final _pujaController = TextEditingController();
   int _imagenActiva = 0;
+  final PageController _pageController = PageController();
+  Stream<MonedaSubasta?>? _subastaStream;
 
   @override
   void initState() {
     super.initState();
-    // Comprobar si la subasta ha caducado al abrir la pantalla
     if (widget.monedaId != null) {
+      _subastaStream = _monedaService.escucharSubasta(widget.monedaId!);
+      // Comprobar si la subasta ha caducado al abrir la pantalla
       _subastaService.comprobarYCerrarSubasta(widget.monedaId!);
     }
   }
@@ -38,6 +43,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
   @override
   void dispose() {
     _pujaController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -49,8 +55,8 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
     // No se puede pujar en la propia subasta
     if (miUid == moneda.vendedorId) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('No puedes pujar en tu propia subasta')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.noPujarTuya)),
       );
       return;
     }
@@ -60,13 +66,13 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Realizar puja'),
+        title: Text(AppLocalizations.of(context)!.realizarPuja),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Precio actual: ${moneda.precioActual.toStringAsFixed(2)} €',
+              '${AppLocalizations.of(context)!.pujaActual}: ${moneda.precioActual.toStringAsFixed(2)} €',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color(0xFFB8860B),
@@ -74,7 +80,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Tu puja debe ser mayor que ${moneda.precioActual.toStringAsFixed(2)} €',
+              '${AppLocalizations.of(context)!.tuPujaDebeSerMayor} ${moneda.precioActual.toStringAsFixed(2)} €',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             const SizedBox(height: 16),
@@ -83,7 +89,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
               keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                labelText: 'Tu puja (€)',
+                labelText: AppLocalizations.of(context)!.tuPujaEuro,
                 border: OutlineInputBorder(),
                 prefixText: '€ ',
               ),
@@ -94,7 +100,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancelar),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -138,7 +144,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
               backgroundColor: const Color(0xFFB8860B),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Pujar'),
+            child: Text(AppLocalizations.of(context)!.pujar),
           ),
         ],
       ),
@@ -173,9 +179,8 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       body: StreamBuilder<MonedaSubasta?>(
-        stream: _monedaService.escucharSubasta(widget.monedaId!),
+        stream: _subastaStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -184,7 +189,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
           }
 
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Subasta no encontrada'));
+            return Center(child: Text(AppLocalizations.of(context)!.subastaNoEncontrada));
           }
 
           final moneda = snapshot.data!;
@@ -196,14 +201,35 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
             slivers: [
               // AppBar con carrusel de imágenes
               SliverAppBar(
-                expandedHeight: 300,
+                expandedHeight: 350,
                 pinned: true,
-                backgroundColor: const Color(0xFFB8860B),
-                foregroundColor: Colors.white,
+                stretch: true,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black.withOpacity(0.3),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
                 flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: _imagenActiva == 0 ? null : Text(
+                    moneda.nom,
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFFB8860B) 
+                          : Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
                   background: Stack(
                     children: [
                       PageView.builder(
+                        controller: _pageController,
                         itemCount: moneda.imagenes.isNotEmpty
                             ? moneda.imagenes.length
                             : 1,
@@ -375,25 +401,25 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
 
                       // Datos de la moneda
                       _SeccionDatos(
-                        titulo: 'Información general',
+                        titulo: AppLocalizations.of(context)!.infoGeneral,
                         datos: {
-                          'País': moneda.pais,
-                          'Periodo': moneda.periodo,
-                          'Unidad monetaria': moneda.unidadMonetaria,
+                          AppLocalizations.of(context)!.pais: moneda.pais,
+                          AppLocalizations.of(context)!.periodo: moneda.periodo,
+                          AppLocalizations.of(context)!.unidadMonetaria: moneda.unidadMonetaria,
                         },
                       ),
                       const SizedBox(height: 12),
 
                       _SeccionDatos(
-                        titulo: 'Características físicas',
+                        titulo: AppLocalizations.of(context)!.caractFisicas,
                         datos: {
-                          'Composición': moneda.composicion,
-                          'Peso': '${moneda.peso} g',
-                          'Diámetro': '${moneda.diametro} mm',
-                          'Grosor': '${moneda.grosor} mm',
-                          'Forma': moneda.forma,
-                          'Técnica de acuñación': moneda.tecnicaAcuniacion,
-                          'Estado de conservación':
+                          AppLocalizations.of(context)!.composicion: moneda.composicion,
+                          AppLocalizations.of(context)!.peso: '${moneda.peso} g',
+                          AppLocalizations.of(context)!.diametro: '${moneda.diametro} mm',
+                          AppLocalizations.of(context)!.grosor: '${moneda.grosor} mm',
+                          AppLocalizations.of(context)!.forma: moneda.forma,
+                          AppLocalizations.of(context)!.tecnicaAcuniacion: moneda.tecnicaAcuniacion,
+                          AppLocalizations.of(context)!.estadoConservacion:
                           moneda.estadoConservacion,
                         },
                       ),
@@ -419,7 +445,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                             ),
                             icon: const Icon(Icons.gavel),
                             label: const Text(
-                              'Realizar puja',
+                              AppLocalizations.of(context)!.realizarPuja,
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -427,23 +453,80 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
 
                       // Mensaje si la subasta ha terminado
                       if (haTerminado)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.shade200),
-                          ),
-                          child: const Text(
-                            'Esta subasta ha terminado',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
+                        Builder(builder: (context) {
+                          final carritoProvider = Provider.of<CarritoProvider>(context, listen: false);
+                          final miUid = authProvider.usuarioFirebase?.uid;
+                          final esGanador = moneda.ganadorId.isNotEmpty && moneda.ganadorId == miUid;
+
+                          // Si soy el ganador y no tengo el item en el carrito, lo agrego automáticamente
+                          if (esGanador && !carritoProvider.estaEnCarrito(moneda.monedaId)) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              carritoProvider.agregarItemDeSubasta(moneda);
+                            });
+                          }
+
+                          if (esGanador) {
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF8B6508), Color(0xFFB8860B)],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.emoji_events, color: Colors.white, size: 36),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    '¡Has ganado esta subasta!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Precio final: ${moneda.precioActual.toStringAsFixed(2)} €',
+                                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ElevatedButton.icon(
+                                    onPressed: () => context.go('/carrito'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: const Color(0xFFB8860B),
+                                    ),
+                                    icon: const Icon(Icons.shopping_cart),
+                                    label: Text(AppLocalizations.of(context)!.irCarritoPagar),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
                             ),
-                          ),
-                        ),
+                            child: Text(
+                              moneda.ganadorId.isNotEmpty
+                                  ? 'Subasta terminada. Ya tiene ganador.'
+                                  : 'Esta subasta ha terminado sin pujas.',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }),
 
                       // Mensaje si es propia
                       if (esPropia && !haTerminado)
@@ -455,9 +538,9 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
-                            'Esta es tu subasta',
+                            AppLocalizations.of(context)!.estaEsTuSubasta,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         ),
 
@@ -488,11 +571,8 @@ class _ListaSubastas extends StatelessWidget {
   Widget build(BuildContext context) {
     final usuarioService = UsuarioService();
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: const Text('Subastas activas'),
+        title: Text(AppLocalizations.of(context)!.subastasActivas),
         automaticallyImplyLeading: false,
       ),
       body: StreamBuilder<List<MonedaSubasta>>(
@@ -535,19 +615,10 @@ class _ListaSubastas extends StatelessWidget {
               return GestureDetector(
                 onTap: () =>
                     context.push('/detalle-subasta/${moneda.monedaId}'),
-                child: Container(
+                child: Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Row(
                     children: [
                       // Imagen de la moneda
@@ -681,21 +752,12 @@ class _SeccionDatos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -732,6 +794,7 @@ class _SeccionDatos extends StatelessWidget {
           )),
         ],
       ),
+    ),
     );
   }
 }
@@ -748,26 +811,17 @@ class _HistorialPujas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Historial de pujas',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.historialPujas,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFFB8860B),
@@ -785,11 +839,11 @@ class _HistorialPujas extends StatelessWidget {
               }
 
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.all(8),
+                return Padding(
+                  padding: const EdgeInsets.all(8),
                   child: Text(
-                    'Aún no hay pujas',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.noHayPujas,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 );
               }
@@ -847,9 +901,9 @@ class _HistorialPujas extends StatelessWidget {
                       style: const TextStyle(fontSize: 11),
                     ),
                     trailing: esPrimera
-                        ? const Text(
-                      'Ganando',
-                      style: TextStyle(
+                        ? Text(
+                      AppLocalizations.of(context)!.ganando,
+                      style: const TextStyle(
                         color: Colors.green,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -863,6 +917,7 @@ class _HistorialPujas extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

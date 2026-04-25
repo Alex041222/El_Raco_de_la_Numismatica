@@ -5,14 +5,30 @@ import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/carrito_provider.dart';
+import 'providers/ajustes_provider.dart';
 import 'router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  final ajustesProvider = AjustesProvider();
+  await ajustesProvider.cargarPreferencias();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CarritoProvider()),
+        ChangeNotifierProvider.value(value: ajustesProvider),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,13 +36,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => CarritoProvider()),
-      ],
-      child: const AppRouterWidget(),
-    );
+    return const AppRouterWidget();
   }
 }
 
@@ -43,21 +53,22 @@ class _AppRouterWidgetState extends State<AppRouterWidget> {
   @override
   void initState() {
     super.initState();
-    // Creamos el router una sola vez. Como estamos dentro de AppRouterWidget
-    // que es hijo de MultiProvider, podemos acceder a AuthProvider con context.read.
     _router = createRouter(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos el estado inicial de carga para mostrar el loader
     final authProvider = Provider.of<AuthProvider>(context);
+    final ajustesProvider = Provider.of<AjustesProvider>(context);
 
     if (authProvider.cargandoInicial) {
-      return const MaterialApp(
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Color(0xFFFAF7F2),
+        theme: ThemeData(
+          brightness: ajustesProvider.themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light,
+          scaffoldBackgroundColor: ajustesProvider.themeMode == ThemeMode.dark ? const Color(0xFF121212) : const Color(0xFFFAF7F2),
+        ),
+        home: const Scaffold(
           body: Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB8860B),
@@ -70,12 +81,53 @@ class _AppRouterWidgetState extends State<AppRouterWidget> {
     return MaterialApp.router(
       title: 'El Racó de la Numismàtica',
       debugShowCheckedModeBanner: false,
+      // LOCALIZACIONES
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ca'), // Català
+        Locale('es'), // Castellano
+        Locale('en'), // English
+      ],
+      locale: Locale(ajustesProvider.idioma),
+      // MODO CLARO
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB8860B),
+          brightness: Brightness.light,
+          surface: const Color(0xFFFAF7F2),
         ),
-        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFFAF7F2),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFB8860B),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
+      // MODO OSCURO
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFB8860B),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF1E1E1E),
+        ),
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E1E1E),
+          foregroundColor: Color(0xFFB8860B),
+          elevation: 0,
+        ),
+        cardTheme: const CardThemeData(
+          color: Color(0xFF1E1E1E),
+        ),
+      ),
+      themeMode: ajustesProvider.themeMode,
       routerConfig: _router,
     );
   }

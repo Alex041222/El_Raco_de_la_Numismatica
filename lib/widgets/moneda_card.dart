@@ -4,6 +4,8 @@ import '../models/moneda_venta_model.dart';
 import '../utils/constantes.dart';
 import '../services/usuario_service.dart';
 import '../models/usuario_model.dart';
+import '../l10n/app_localizations.dart';
+import 'imagen_widget.dart';
 
 // Widget reutilizable de tarjeta de moneda en venta
 // Se usa en el catálogo y en el perfil del vendedor
@@ -52,29 +54,9 @@ class MonedaCard extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     // Imagen principal
-                    moneda.imagenes.isNotEmpty
-                        ? CachedNetworkImage(
-                      imageUrl: moneda.imagenes.first,
+                    ImagenWidget(
+                      imagen: moneda.imagenes.isNotEmpty ? moneda.imagenes.first : '',
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                          color: kColorPrimario,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => const Center(
-                        child: Icon(
-                          Icons.monetization_on,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    )
-                        : const Center(
-                      child: Icon(
-                        Icons.monetization_on,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
                     ),
 
                     // Badge disponible / vendida
@@ -91,7 +73,9 @@ class MonedaCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          moneda.disponible ? 'Disponible' : 'Vendida',
+                          moneda.disponible 
+                              ? AppLocalizations.of(context)!.disponible 
+                              : AppLocalizations.of(context)!.venut,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,

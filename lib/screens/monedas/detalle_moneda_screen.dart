@@ -9,6 +9,7 @@ import '../../services/chat_service.dart';
 import '../../services/usuario_service.dart';
 import '../../models/moneda_venta_model.dart';
 import '../../models/usuario_model.dart';
+import '../l10n/app_localizations.dart';
 
 class DetalleMonedaScreen extends StatefulWidget {
   final String monedaId;
@@ -25,6 +26,20 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
 
   // Índice de la imagen activa en el carrusel
   int _imagenActiva = 0;
+  final PageController _pageController = PageController();
+  late Future<MonedaVenta?> _monedaFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _monedaFuture = _monedaService.obtenerMonedaVenta(widget.monedaId);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   // Abrir chat con el vendedor
   Future<void> _abrirChat(String vendedorId) async {
@@ -34,7 +49,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
     // No se puede abrir chat con uno mismo
     if (miUid == vendedorId) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No puedes chatear contigo mismo')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.noChatearContigo)),
       );
       return;
     }
@@ -51,7 +66,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al abrir el chat: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorChat}: $e')),
         );
       }
     }
@@ -63,9 +78,8 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
     final carritoProvider = Provider.of<CarritoProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       body: FutureBuilder<MonedaVenta?>(
-        future: _monedaService.obtenerMonedaVenta(widget.monedaId),
+        future: _monedaFuture,
         builder: (context, snapshot) {
           // Estado de carga
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,7 +90,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
 
           // Error o no encontrada
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Moneda no encontrada'));
+            return Center(child: Text(AppLocalizations.of(context)!.monedaNoEncontrada));
           }
 
           final moneda = snapshot.data!;
@@ -89,15 +103,36 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
             slivers: [
               // AppBar con carrusel de imágenes
               SliverAppBar(
-                expandedHeight: 300,
+                expandedHeight: 350,
                 pinned: true,
-                backgroundColor: const Color(0xFFB8860B),
-                foregroundColor: Colors.white,
+                stretch: true,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black.withOpacity(0.3),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
                 flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: _imagenActiva == 0 ? null : Text(
+                    moneda.nom,
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFFB8860B) 
+                          : Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
                   background: Stack(
                     children: [
                       // Carrusel de imágenes
                       PageView.builder(
+                        controller: _pageController,
                         itemCount: moneda.imagenes.isNotEmpty
                             ? moneda.imagenes.length
                             : 1,
@@ -194,7 +229,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              moneda.disponible ? 'Disponible' : 'Vendida',
+                              moneda.disponible ? AppLocalizations.of(context)!.disponible : AppLocalizations.of(context)!.venut,
                               style: TextStyle(
                                 color: moneda.disponible
                                     ? Colors.green.shade700
@@ -241,25 +276,25 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
 
                       // Datos de la moneda
                       _SeccionDatos(
-                        titulo: 'Información general',
+                        titulo: AppLocalizations.of(context)!.infoGeneral,
                         datos: {
-                          'País': moneda.pais,
-                          'Periodo': moneda.periodo,
-                          'Unidad monetaria': moneda.unidadMonetaria,
+                          AppLocalizations.of(context)!.pais: moneda.pais,
+                          AppLocalizations.of(context)!.periodo: moneda.periodo,
+                          AppLocalizations.of(context)!.unidadMonetaria: moneda.unidadMonetaria,
                         },
                       ),
                       const SizedBox(height: 12),
 
                       _SeccionDatos(
-                        titulo: 'Características físicas',
+                        titulo: AppLocalizations.of(context)!.caractFisicas,
                         datos: {
-                          'Composición': moneda.composicion,
-                          'Peso': '${moneda.peso} g',
-                          'Diámetro': '${moneda.diametro} mm',
-                          'Grosor': '${moneda.grosor} mm',
-                          'Forma': moneda.forma,
-                          'Técnica de acuñación': moneda.tecnicaAcuniacion,
-                          'Estado de conservación': moneda.estadoConservacion,
+                          AppLocalizations.of(context)!.composicion: moneda.composicion,
+                          AppLocalizations.of(context)!.peso: '${moneda.peso} g',
+                          AppLocalizations.of(context)!.diametro: '${moneda.diametro} mm',
+                          AppLocalizations.of(context)!.grosor: '${moneda.grosor} mm',
+                          AppLocalizations.of(context)!.forma: moneda.forma,
+                          AppLocalizations.of(context)!.tecnicaAcuniacion: moneda.tecnicaAcuniacion,
+                          AppLocalizations.of(context)!.estadoConservacion: moneda.estadoConservacion,
                         },
                       ),
                       const SizedBox(height: 24),
@@ -282,8 +317,8 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                                 ? Icons.check
                                 : Icons.add_shopping_cart),
                             label: Text(enCarrito
-                                ? 'Añadido al carrito'
-                                : 'Agregar al carrito'),
+                                ? AppLocalizations.of(context)!.anadidoCarrito
+                                : AppLocalizations.of(context)!.agregarCarrito),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -300,24 +335,26 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                                   color: Color(0xFFB8860B)),
                             ),
                             icon: const Icon(Icons.chat_outlined),
-                            label: const Text('Contactar vendedor'),
+                            label: Text(AppLocalizations.of(context)!.contactarVendedor),
                           ),
                         ),
                       ],
 
                       // Si es propia mostramos mensaje
                       if (esPropia)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Esta moneda es tuya',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey),
+                        Card(
+                          elevation: 0,
+                          color: Colors.grey.withOpacity(0.1),
+                          child: const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                AppLocalizations.of(context)!.estaMonedaEsTuya,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ),
                           ),
                         ),
                     ],
@@ -341,21 +378,12 @@ class _SeccionDatos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Título de la sección
@@ -401,6 +429,7 @@ class _SeccionDatos extends StatelessWidget {
           )),
         ],
       ),
+    ),
     );
   }
 }

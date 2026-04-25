@@ -115,11 +115,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final usuario = authProvider.usuarioPerfil;
 
+    if (usuario == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Color(0xFFB8860B))),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
         title: const Text('Editar perfil'),
       ),
       body: SingleChildScrollView(

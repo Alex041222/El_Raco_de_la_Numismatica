@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../providers/auth_provider.dart';
 import '../../services/usuario_service.dart';
+import '../l10n/app_localizations.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
   const CompletarPerfilScreen({super.key});
@@ -91,7 +92,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al guardar el perfil: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorPerfil}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -104,11 +105,8 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: const Text('Completa tu perfil'),
+        title: Text(AppLocalizations.of(context)!.completaPerfil),
         // Sin botón de volver atrás, el usuario debe completar el perfil
         automaticallyImplyLeading: false,
       ),
@@ -121,8 +119,8 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
               children: [
 
                 const Text(
-                  'Antes de continuar necesitamos algunos datos',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  AppLocalizations.of(context)!.antesContinuar,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -132,7 +130,9 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                   onTap: _seleccionarFoto,
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundColor: const Color(0xFFB8860B).withOpacity(0.2),
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey.withOpacity(0.1) 
+                        : const Color(0xFFB8860B).withOpacity(0.2),
                     // Si hay foto seleccionada la muestra, si no muestra la de stock
                     backgroundImage: _fotoPerfil != null
                         ? FileImage(_fotoPerfil!)
@@ -149,8 +149,8 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Toca para añadir foto (opcional)',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  AppLocalizations.of(context)!.anadirFotoOpcional,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
 
@@ -158,16 +158,16 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                 TextFormField(
                   controller: _nombreController,
                   decoration: const InputDecoration(
-                    labelText: 'Nombre de usuario',
+                    labelText: AppLocalizations.of(context)!.nombreUsuario,
                     prefixIcon: Icon(Icons.person_outlined),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'El nombre de usuario es obligatorio';
+                      return AppLocalizations.of(context)!.nombreObligatorio;
                     }
                     if (value.length < 3) {
-                      return 'El nombre debe tener al menos 3 caracteres';
+                      return AppLocalizations.of(context)!.nombreCorto;
                     }
                     return null;
                   },
@@ -180,7 +180,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                   maxLines: 3,
                   maxLength: 200,
                   decoration: const InputDecoration(
-                    labelText: 'Biografia (opcional)',
+                    labelText: AppLocalizations.of(context)!.biografiaOpcional,
                     prefixIcon: Icon(Icons.info_outlined),
                     border: OutlineInputBorder(),
                     alignLabelWithHint: true,
@@ -192,7 +192,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                 TextFormField(
                   controller: _direccionController,
                   decoration: const InputDecoration(
-                    labelText: 'Dirección (opcional)',
+                    labelText: AppLocalizations.of(context)!.direccionOpcional,
                     prefixIcon: Icon(Icons.location_on_outlined),
                     border: OutlineInputBorder(),
                   ),
@@ -212,7 +212,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                     child: _cargando
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                      'Guardar y continuar',
+                        AppLocalizations.of(context)!.guardarContinuar,
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

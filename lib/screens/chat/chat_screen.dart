@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
 import '../../models/mensaje_model.dart';
+import '../l10n/app_localizations.dart';
+import '../../widgets/imagen_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -23,7 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _mensajeController = TextEditingController();
   final _scrollController = ScrollController();
   bool _enviando = false;
-  String _nombreOtroUsuario = 'Cargando...';
+  String _nombreOtroUsuario = '';
 
   @override
   void initState() {
@@ -59,7 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _nombreOtroUsuario = 'Conversación';
+          _nombreOtroUsuario = AppLocalizations.of(context)!.conversacion;
         });
       }
     }
@@ -90,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al enviar: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorEnviar}: $e')),
         );
       }
     } finally {
@@ -125,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al enviar imagen: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorEnviarImagen}: $e')),
         );
       }
     } finally {
@@ -149,14 +151,19 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final miUid = authProvider.usuarioFirebase!.uid;
+    final firebaseUser = authProvider.usuarioFirebase;
+
+    if (firebaseUser == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Color(0xFFB8860B))),
+      );
+    }
+
+    final miUid = firebaseUser.uid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: Text(_nombreOtroUsuario),
+        title: Text(_nombreOtroUsuario.isEmpty ? AppLocalizations.of(context)!.cargando : _nombreOtroUsuario),
       ),
       body: Column(
         children: [
@@ -175,8 +182,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
                     child: Text(
-                      'Inicia la conversación',
-                      style: TextStyle(color: Colors.grey),
+                      AppLocalizations.of(context)!.iniciaConversacion,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   );
                 }
@@ -208,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
@@ -233,13 +240,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _mensajeController,
                     decoration: InputDecoration(
-                      hintText: 'Escribe un mensaje...',
+                      hintText: AppLocalizations.of(context)!.escribeMensaje,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFFAF7F2),
+                      fillColor: Theme.of(context).scaffoldBackgroundColor,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
@@ -308,7 +315,9 @@ class _BurbujaMensaje extends StatelessWidget {
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         decoration: BoxDecoration(
-          color: esMio ? const Color(0xFFB8860B) : Colors.white,
+          color: esMio 
+              ? const Color(0xFFB8860B) 
+              : Theme.of(context).cardColor,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -331,17 +340,10 @@ class _BurbujaMensaje extends StatelessWidget {
             // Mensaje con imagen
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: mensaje.imagenURL!,
+                child: ImagenWidget(
+                  imagen: mensaje.imagenURL!,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(
-                        color: Color(0xFFB8860B)),
-                  ),
-                  errorWidget: (context, url, error) =>
-                  const Icon(Icons.broken_image, color: Colors.grey),
                 ),
               )
             else
@@ -351,7 +353,7 @@ class _BurbujaMensaje extends StatelessWidget {
                 child: Text(
                   mensaje.texto ?? '',
                   style: TextStyle(
-                    color: esMio ? Colors.white : Colors.black87,
+                    color: esMio ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
                     fontSize: 15,
                   ),
                 ),

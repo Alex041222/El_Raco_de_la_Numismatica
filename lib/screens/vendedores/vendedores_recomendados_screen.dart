@@ -12,10 +12,7 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
     final usuarioService = UsuarioService();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
         title: const Text('Vendedores recomendados'),
         automaticallyImplyLeading: false,
       ),
@@ -73,28 +70,18 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
 
               return GestureDetector(
                 onTap: () => context.push('/perfil/${usuario.uid}'),
-                child: Container(
+                child: Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    // Borde dorado para el primero
-                    border: index == 0
-                        ? Border.all(
-                      color: const Color(0xFFB8860B),
-                      width: 2,
-                    )
-                        : null,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    side: index == 0
+                        ? const BorderSide(color: Color(0xFFB8860B), width: 2)
+                        : BorderSide.none,
                   ),
-                  child: Row(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                     children: [
                       // Posición / medalla
                       SizedBox(
@@ -183,6 +170,7 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
               );
             },
           );

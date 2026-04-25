@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -57,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2), // fondo crema
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -76,12 +76,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'El Racó de la Numismàtica',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFB8860B),
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFFB8860B) 
+                          : const Color(0xFFB8860B), // es el mismo, pero lo dejo dinamico por si quieres cambiarlo
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -98,10 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Introduce tu email';
+                        return AppLocalizations.of(context)!.introduceEmail;
                       }
                       if (!value.contains('@')) {
-                        return 'El email no es válido';
+                        return AppLocalizations.of(context)!.emailNoValido;
                       }
                       return null;
                     },
@@ -113,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     obscureText: !_verPassword,
                     decoration: InputDecoration(
-                      labelText: 'Contraseña',
+                      labelText: AppLocalizations.of(context)!.password,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       border: const OutlineInputBorder(),
                       // Botón para mostrar/ocultar contraseña
@@ -128,10 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Introduce tu contraseña';
+                        return AppLocalizations.of(context)!.introducePassword;
                       }
                       if (value.length < 6) {
-                        return 'La contraseña debe tener al menos 6 caracteres';
+                        return AppLocalizations.of(context)!.passwordCorto;
                       }
                       return null;
                     },
@@ -151,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: authProvider.cargando
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
-                        'Iniciar sesión',
+                        AppLocalizations.of(context)!.iniciarSessio,
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -162,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () => context.go('/register'),
                     child: const Text(
-                      '¿No tienes cuenta? Regístrate',
+                      AppLocalizations.of(context)!.noTienesCuenta,
                       style: TextStyle(color: Color(0xFFB8860B)),
                     ),
                   ),

@@ -8,6 +8,7 @@ import '../../services/moneda_service.dart';
 import '../../models/moneda_venta_model.dart';
 import '../../services/usuario_service.dart';
 import '../../models/usuario_model.dart';
+import '../l10n/app_localizations.dart';
 
 class CatalogoScreen extends StatefulWidget {
   const CatalogoScreen({super.key});
@@ -36,11 +37,8 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8860B),
-        foregroundColor: Colors.white,
-        title: const Text('Catálogo'),
+        title: Text(AppLocalizations.of(context)!.cataleg),
         actions: [
           // Botón carrito con badge
           Stack(
@@ -81,13 +79,12 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             child: TextField(
               controller: _busquedaController,
               decoration: InputDecoration(
-                hintText: 'Buscar por nombre, país, periodo...',
+                hintText: AppLocalizations.of(context)!.hintBuscar,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
               onChanged: (value) {
@@ -127,8 +124,8 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                             size: 60, color: Colors.grey),
                         SizedBox(height: 12),
                         Text(
-                          'No hay monedas en venta',
-                          style: TextStyle(color: Colors.grey),
+                          AppLocalizations.of(context)!.noHayMonedas,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
@@ -146,8 +143,8 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                 if (monedas.isEmpty) {
                   return const Center(
                     child: Text(
-                      'No se encontraron resultados',
-                      style: TextStyle(color: Colors.grey),
+                      AppLocalizations.of(context)!.noResultados,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   );
                 }
@@ -207,17 +204,10 @@ class _TarjetaMoneda extends StatelessWidget {
     final usuarioService = UsuarioService();
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
