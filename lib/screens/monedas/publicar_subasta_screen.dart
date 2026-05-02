@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../models/moneda_subasta_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class PublicarSubastaScreen extends StatefulWidget {
   const PublicarSubastaScreen({super.key});
@@ -86,7 +86,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
     if (_imagenes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppLocalizations.of(context)!.alMenosUnaImagen),
           backgroundColor: Colors.red,
         ),
@@ -148,7 +148,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
           content: Text(AppLocalizations.of(context)!.publicadoCorrecto),
             backgroundColor: Colors.green,
           ),
@@ -172,7 +172,6 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFFB8860B),
         foregroundColor: Colors.white,
@@ -368,7 +367,9 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
                             ? AppLocalizations.of(context)!.seleccionarFechaFin
                             : _formatearFecha(context, _fechaFinElegida!),
                         style: TextStyle(
-                          color: _fechaFinElegida == null ? Colors.grey : Colors.black,
+                          color: _fechaFinElegida == null
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const Icon(Icons.calendar_today, color: Color(0xFFB8860B)),
@@ -455,7 +456,7 @@ class _SeccionFormulario extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

@@ -8,7 +8,7 @@ import '../../services/moneda_service.dart';
 import '../../models/moneda_venta_model.dart';
 import '../../services/usuario_service.dart';
 import '../../models/usuario_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class CatalogoScreen extends StatefulWidget {
   const CatalogoScreen({super.key});
@@ -116,7 +116,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
 
                 // Sin datos
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -141,7 +141,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                 }).toList();
 
                 if (monedas.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       AppLocalizations.of(context)!.noResultados,
                       style: const TextStyle(color: Colors.grey),

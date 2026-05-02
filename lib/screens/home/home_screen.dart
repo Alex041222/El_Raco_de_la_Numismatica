@@ -10,7 +10,7 @@ import '../vendedores/vendedores_recomendados_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/carrito_provider.dart';
 import '../../services/moneda_service.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

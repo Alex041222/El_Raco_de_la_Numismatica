@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/moneda_service.dart';
 import '../../models/moneda_venta_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 
 class PublicarVentaScreen extends StatefulWidget {
@@ -85,7 +85,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
     if (_imagenes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppLocalizations.of(context)!.alMenosUnaImagen),
           backgroundColor: Colors.red,
         ),
@@ -156,7 +156,6 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFFB8860B),
         foregroundColor: Colors.white,
@@ -377,7 +376,7 @@ class _SeccionFormulario extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

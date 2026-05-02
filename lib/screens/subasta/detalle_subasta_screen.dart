@@ -11,7 +11,8 @@ import '../../models/moneda_subasta_model.dart';
 import '../../models/puja_model.dart';
 import '../../models/usuario_model.dart';
 import '../../services/usuario_service.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/imagen_widget.dart';
 
 class DetalleSubastaScreen extends StatefulWidget {
   final String? monedaId;
@@ -88,7 +89,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
               controller: _pujaController,
               keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.tuPujaEuro,
                 border: OutlineInputBorder(),
                 prefixText: '€ ',
@@ -210,7 +211,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                   child: CircleAvatar(
                     backgroundColor: Colors.black.withOpacity(0.3),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.arrow_back, color: Color(0xFFB8860B), size: 20),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -243,16 +244,9 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                                   size: 80, color: Colors.white),
                             );
                           }
-                          return CachedNetworkImage(
-                            imageUrl: moneda.imagenes[index],
+                          return ImagenWidget(
+                            imagen: moneda.imagenes[index],
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.white),
-                            ),
-                            errorWidget: (context, url, error) =>
-                            const Icon(Icons.monetization_on,
-                                size: 80, color: Colors.white),
                           );
                         },
                       ),
@@ -444,7 +438,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                               foregroundColor: Colors.white,
                             ),
                             icon: const Icon(Icons.gavel),
-                            label: const Text(
+                            label: Text(
                               AppLocalizations.of(context)!.realizarPuja,
                               style: TextStyle(fontSize: 16),
                             ),
@@ -537,7 +531,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                             color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
+                          child: Text(
                             AppLocalizations.of(context)!.estaEsTuSubasta,
                             textAlign: TextAlign.center,
                             style: const TextStyle(color: Colors.grey),
@@ -626,18 +620,11 @@ class _ListaSubastas extends StatelessWidget {
                         borderRadius: const BorderRadius.horizontal(
                             left: Radius.circular(12)),
                         child: moneda.imagenes.isNotEmpty
-                            ? CachedNetworkImage(
-                          imageUrl: moneda.imagenes.first,
+                            ? ImagenWidget(
+                          imagen: moneda.imagenes.first,
                           width: 100,
                           height: 100,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(
-                                color: Color(0xFFB8860B)),
-                          ),
-                          errorWidget: (context, url, error) =>
-                          const Icon(Icons.monetization_on,
-                              size: 40, color: Colors.grey),
                         )
                             : Container(
                           width: 100,

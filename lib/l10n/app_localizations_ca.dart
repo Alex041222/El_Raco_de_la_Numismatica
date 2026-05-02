@@ -84,7 +84,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get xats => 'Xats';
 
   @override
-  String get topVenedors => 'Top Venedors';
+  String get topVenedors => '   Top\nVenedors';
 
   @override
   String get buscar => 'Buscar';

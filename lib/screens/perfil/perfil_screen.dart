@@ -15,7 +15,8 @@ import '../../models/pedido_model.dart';
 import '../../models/item_pedido_model.dart';
 import '../../models/resena_model.dart';
 import '../../models/usuario_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/imagen_widget.dart';
 
 class PerfilScreen extends StatefulWidget {
   // Si uid es null mostramos nuestro propio perfil
@@ -461,7 +462,7 @@ class _PerfilScreenState extends State<PerfilScreen>
                   compradorId: miUid,
                   pedidoService: _pedidoService,
                 )
-                    : const Center(
+                    : Center(
                   child: Text(
                     AppLocalizations.of(context)!.soloTusCompras,
                     style: const TextStyle(color: Colors.grey),
@@ -535,17 +536,10 @@ class _MonedasEnVenta extends StatelessWidget {
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(12)),
                         child: moneda.imagenes.isNotEmpty
-                            ? CachedNetworkImage(
-                          imageUrl: moneda.imagenes.first,
+                            ? ImagenWidget(
+                          imagen: moneda.imagenes.first,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(
-                                color: Color(0xFFB8860B)),
-                          ),
-                          errorWidget: (context, url, error) =>
-                          const Icon(Icons.monetization_on,
-                              size: 40, color: Colors.grey),
                         )
                             : const Center(
                           child: Icon(Icons.monetization_on,
@@ -658,8 +652,8 @@ class _SubastasUsuario extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: moneda.imagenes.isNotEmpty
-                          ? CachedNetworkImage(
-                        imageUrl: moneda.imagenes.first,
+                          ? ImagenWidget(
+                        imagen: moneda.imagenes.first,
                         width: 70,
                         height: 70,
                         fit: BoxFit.cover,
@@ -789,8 +783,8 @@ class _MisCompras extends StatelessWidget {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: foto != null
-                                      ? CachedNetworkImage(
-                                          imageUrl: foto,
+                                      ? ImagenWidget(
+                                          imagen: foto,
                                           fit: BoxFit.cover,
                                         )
                                       : const Icon(Icons.monetization_on, color: Colors.grey),

@@ -253,7 +253,7 @@ abstract class AppLocalizations {
   /// No description provided for @topVenedors.
   ///
   /// In ca, this message translates to:
-  /// **'Top Venedors'**
+  /// **'   Top\nVenedors'**
   String get topVenedors;
 
   /// No description provided for @buscar.

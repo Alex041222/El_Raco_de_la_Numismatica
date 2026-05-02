@@ -1,4 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permisos indispensables de Internet (Firebase, Base de datos, Imágenes) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Permisos de Cámara para hacer fotos de las monedas y perfil -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- Permisos de Galería para Android 12 y versiones anteriores -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    
+    <!-- Permisos de Galería para Android 13 y superiores (ej. Poco, Xiaomi, Samsung modernos) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
     <application
         android:label="el_raco_de_la_numismatica"
         android:name="${applicationName}"

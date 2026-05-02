@@ -7,7 +7,7 @@ import '../../services/chat_service.dart';
 import '../../models/chat_model.dart';
 import '../../models/usuario_model.dart';
 import '../../services/usuario_service.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import '../../widgets/imagen_widget.dart';
 
 class ListaChatsScreen extends StatelessWidget {
@@ -50,7 +50,7 @@ class ListaChatsScreen extends StatelessWidget {
 
           // Sin chats
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

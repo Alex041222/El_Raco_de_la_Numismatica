@@ -34,10 +34,19 @@ class PedidoService {
           final monedaRef = _firestore
               .collection(coleccion)
               .doc(item.monedaId);
-          transaction.update(monedaRef, {'disponible': false});
+          
+          final docSnapshot = await transaction.get(monedaRef);
+          if (docSnapshot.exists) {
+            transaction.update(monedaRef, {'disponible': false});
+          } else {
+            throw Exception('Una de las monedas ya no está disponible o ha sido eliminada por el vendedor.');
+          }
         }
       });
     } catch (e) {
+      if (e is FirebaseException && e.code == 'not-found') {
+        throw Exception('Una de las monedas ya no existe en la base de datos.');
+      }
       rethrow;
     }
   }

@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/chat_service.dart';
 import '../../models/mensaje_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import '../../widgets/imagen_widget.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -180,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       AppLocalizations.of(context)!.iniciaConversacion,
                       style: const TextStyle(color: Colors.grey),

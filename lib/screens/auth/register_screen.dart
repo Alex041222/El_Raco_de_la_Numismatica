@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -170,14 +170,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: authProvider.cargando
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(AppLocalizations.of(context)!.crearCuenta, style: const TextStyle(fontSize: 16)),
+                          : Text(AppLocalizations.of(context)!.crearCuenta, style: TextStyle(fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   TextButton(
                     onPressed: () => context.go('/login'),
-                    child: const Text(
+                    child: Text(
                       AppLocalizations.of(context)!.yaTienesCuenta,
                       style: TextStyle(color: Color(0xFFB8860B)),
                     ),

@@ -90,12 +90,14 @@ class AjustesScreen extends StatelessWidget {
   void _mostrarSelectorIdioma(BuildContext context, AjustesProvider provider) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
+        final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: EdgeInsets.fromLTRB(0, 20, 0, 16 + bottomPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

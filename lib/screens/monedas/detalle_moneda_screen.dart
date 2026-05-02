@@ -9,7 +9,8 @@ import '../../services/chat_service.dart';
 import '../../services/usuario_service.dart';
 import '../../models/moneda_venta_model.dart';
 import '../../models/usuario_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/imagen_widget.dart';
 
 class DetalleMonedaScreen extends StatefulWidget {
   final String monedaId;
@@ -112,7 +113,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                   child: CircleAvatar(
                     backgroundColor: Colors.black.withOpacity(0.3),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.arrow_back, color: Color(0xFFB8860B), size: 20),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -146,16 +147,9 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                                   size: 80, color: Colors.white),
                             );
                           }
-                          return CachedNetworkImage(
-                            imageUrl: moneda.imagenes[index],
+                          return ImagenWidget(
+                            imagen: moneda.imagenes[index],
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.white),
-                            ),
-                            errorWidget: (context, url, error) =>
-                            const Icon(Icons.monetization_on,
-                                size: 80, color: Colors.white),
                           );
                         },
                       ),
@@ -345,8 +339,8 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                         Card(
                           elevation: 0,
                           color: Colors.grey.withOpacity(0.1),
-                          child: const Padding(
-                            padding: EdgeInsets.all(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
                             child: SizedBox(
                               width: double.infinity,
                               child: Text(

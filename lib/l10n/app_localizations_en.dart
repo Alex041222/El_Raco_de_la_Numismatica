@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get xats => 'Chats';
 
   @override
-  String get topVenedors => 'Top Sellers';
+  String get topVenedors => '   Top\nSellers';
 
   @override
   String get buscar => 'Search';

@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../providers/auth_provider.dart';
 import '../../services/usuario_service.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
   const CompletarPerfilScreen({super.key});
@@ -118,7 +118,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
             child: Column(
               children: [
 
-                const Text(
+                Text(
                   AppLocalizations.of(context)!.antesContinuar,
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                   textAlign: TextAlign.center,
@@ -148,7 +148,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   AppLocalizations.of(context)!.anadirFotoOpcional,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
@@ -157,7 +157,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                 // Campo nombre de usuario
                 TextFormField(
                   controller: _nombreController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.nombreUsuario,
                     prefixIcon: Icon(Icons.person_outlined),
                     border: OutlineInputBorder(),
@@ -179,7 +179,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                   controller: _biografiaController,
                   maxLines: 3,
                   maxLength: 200,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.biografiaOpcional,
                     prefixIcon: Icon(Icons.info_outlined),
                     border: OutlineInputBorder(),
@@ -191,7 +191,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                 // Campo dirección
                 TextFormField(
                   controller: _direccionController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.direccionOpcional,
                     prefixIcon: Icon(Icons.location_on_outlined),
                     border: OutlineInputBorder(),
@@ -211,7 +211,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                     ),
                     child: _cargando
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
+                        : Text(
                         AppLocalizations.of(context)!.guardarContinuar,
                       style: TextStyle(fontSize: 16),
                     ),

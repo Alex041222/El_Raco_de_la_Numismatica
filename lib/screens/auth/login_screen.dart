@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: authProvider.cargando
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
+                          : Text(
                         AppLocalizations.of(context)!.iniciarSessio,
                         style: TextStyle(fontSize: 16),
                       ),
@@ -163,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Enlace a la pantalla de registro
                   TextButton(
                     onPressed: () => context.go('/register'),
-                    child: const Text(
+                    child: Text(
                       AppLocalizations.of(context)!.noTienesCuenta,
                       style: TextStyle(color: Color(0xFFB8860B)),
                     ),

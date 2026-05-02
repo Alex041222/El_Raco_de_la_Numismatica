@@ -8,7 +8,7 @@ import '../../providers/carrito_provider.dart';
 import '../../services/pedido_service.dart';
 import '../../models/pedido_model.dart';
 import '../../models/item_pedido_model.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 class CarritoScreen extends StatefulWidget {
   const CarritoScreen({super.key});
@@ -51,7 +51,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: AlertDialog(
-          title: Text(AppLocalizations.of(context)!.confirmarCompra, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(AppLocalizations.of(context)!.confirmarCompra, style: TextStyle(fontWeight: FontWeight.bold)),
           contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           content: SingleChildScrollView(
             child: Form(
@@ -69,7 +69,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('${AppLocalizations.of(context)!.totalPagar}:', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text('${AppLocalizations.of(context)!.totalPagar}:', style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
                           '${carritoProvider.total.toStringAsFixed(2)} €',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
@@ -78,14 +78,14 @@ class _CarritoScreenState extends State<CarritoScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('📦 ${AppLocalizations.of(context)!.envio}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text('📦 ${AppLocalizations.of(context)!.envio}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 10),
 
                   // Dirección
                   TextFormField(
                     controller: _direccionController,
                     maxLines: 2,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.direccionEnvio,
                       prefixIcon: Icon(Icons.location_on_outlined),
                       border: OutlineInputBorder(),
@@ -99,7 +99,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                   TextFormField(
                     controller: _telefonoController,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.telefonoContacto,
                       prefixIcon: Icon(Icons.phone_outlined),
                       border: OutlineInputBorder(),
@@ -112,7 +112,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  Text('💳 ${AppLocalizations.of(context)!.datosPago}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text('💳 ${AppLocalizations.of(context)!.datosPago}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 10),
 
                   // Número de tarjeta
@@ -120,7 +120,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                     controller: _numTarjetaController,
                     keyboardType: TextInputType.number,
                     maxLength: 19,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.numTarjeta,
                       prefixIcon: Icon(Icons.credit_card),
                       border: OutlineInputBorder(),
@@ -154,7 +154,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                           controller: _caducidadController,
                           keyboardType: TextInputType.number,
                           maxLength: 5,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.caducidad,
                             prefixIcon: Icon(Icons.calendar_today, size: 18),
                             border: OutlineInputBorder(),
@@ -189,7 +189,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                           keyboardType: TextInputType.number,
                           maxLength: 4,
                           obscureText: true,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.cvv,
                             prefixIcon: Icon(Icons.lock_outline, size: 18),
                             border: OutlineInputBorder(),
@@ -269,7 +269,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
 
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(AppLocalizations.of(context)!.compraCorrecta),
                         backgroundColor: Colors.green,
                       ),
@@ -344,7 +344,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
       ),
       body: carritoProvider.items.isEmpty
       // Carrito vacío
-          ? const Center(
+          ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -422,11 +422,11 @@ class _CarritoScreenState extends State<CarritoScreen> {
                                     color: const Color(0xFFB8860B).withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.emoji_events, size: 11, color: Color(0xFFB8860B)),
-                                      SizedBox(width: 3),
+                                      const Icon(Icons.emoji_events, size: 11, color: Color(0xFFB8860B)),
+                                      const SizedBox(width: 3),
                                       Text(
                                         AppLocalizations.of(context)!.subastaGanada,
                                         style: const TextStyle(
