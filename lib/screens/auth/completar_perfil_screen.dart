@@ -64,6 +64,13 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final uid = authProvider.usuarioFirebase!.uid;
+      final nombreUsuario = _nombreController.text.trim();
+
+      // Comprobar si el nombre de usuario ya está cogido por otro
+      final existe = await _usuarioService.existeNombreUsuario(nombreUsuario);
+      if (existe) {
+        throw Exception(AppLocalizations.of(context)!.nombreUsuarioEnUso);
+      }
 
       String urlFoto = '';
 
@@ -92,7 +99,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${AppLocalizations.of(context)!.errorPerfil}: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorPerfil}: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );

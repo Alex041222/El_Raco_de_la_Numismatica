@@ -180,8 +180,8 @@ class _PerfilScreenState extends State<PerfilScreen>
               onPressed: () async {
                 if (_comentarioController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Escribe un comentario')),
+                    SnackBar(
+                        content: Text(AppLocalizations.of(context)!.escribeComentarioObligatorio)),
                   );
                   return;
                 }
@@ -202,18 +202,25 @@ class _PerfilScreenState extends State<PerfilScreen>
 
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Reseña enviada correctamente'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.resenaEnviada),
                         backgroundColor: Colors.green,
                       ),
                     );
                   }
                 } catch (e) {
                   if (mounted) {
+                    String msg = e.toString().replaceAll('Exception: ', '');
+                    String translatedMsg = msg;
+                    if (msg == 'resenaYaExiste') {
+                      translatedMsg = AppLocalizations.of(context)!.resenaYaExiste;
+                    } else if (msg == 'resenaATiMismo') {
+                      translatedMsg = AppLocalizations.of(context)!.resenaATiMismo;
+                    }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            e.toString().replaceAll('Exception: ', '')),
+                        content: Text(translatedMsg),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -285,6 +292,9 @@ class _PerfilScreenState extends State<PerfilScreen>
                     IconButton(
                       icon: const Icon(Icons.logout),
                       onPressed: () async {
+                        // Vaciar el carrito de la cuenta actual
+                        Provider.of<CarritoProvider>(context, listen: false).vaciarTodo();
+                        
                         await authProvider.logout();
                         if (mounted) context.go('/login');
                       },

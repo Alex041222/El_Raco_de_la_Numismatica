@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../providers/auth_provider.dart';
 import '../../services/usuario_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
   const EditarPerfilScreen({super.key});
@@ -71,6 +72,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final uid = authProvider.usuarioFirebase!.uid;
+      final nombreUsuario = _nombreController.text.trim();
+
+      // Comprobar si el nombre de usuario ya está cogido por otro
+      // (excluimos el propio UID por si el usuario guarda sin cambiar su propio nombre)
+      final existe = await _usuarioService.existeNombreUsuario(nombreUsuario, excludeUid: uid);
+      if (existe) {
+        throw Exception(AppLocalizations.of(context)!.nombreUsuarioEnUso);
+      }
 
       // Si ha cambiado la foto la subimos primero
       if (_nuevaFoto != null) {
@@ -89,8 +98,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Perfil actualizado correctamente'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.perfilActualizado),
             backgroundColor: Colors.green,
           ),
         );
@@ -100,7 +109,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al guardar: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorGuardar}: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );

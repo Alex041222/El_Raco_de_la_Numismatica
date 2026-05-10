@@ -23,6 +23,32 @@ class UsuarioService {
     }
   }
 
+  // Comprobar si un nombre de usuario ya existe
+  Future<bool> existeNombreUsuario(String nombreUsuario, {String? excludeUid}) async {
+    try {
+      // Buscar usuarios con el mismo nombre exacto
+      final query = await _firestore
+          .collection('usuarios')
+          .where('nombreUsuario', isEqualTo: nombreUsuario)
+          .get();
+          
+      if (query.docs.isEmpty) {
+        return false; // El nombre está libre
+      }
+      
+      // Si estamos editando (excludeUid no es null), ignoramos si el documento encontrado es el del propio usuario
+      if (excludeUid != null) {
+        return query.docs.any((doc) => doc.id != excludeUid);
+      }
+      
+      // Si no hay excludeUid (registro nuevo), y la lista no está vacía, el nombre ya existe
+      return true;
+    } catch (e) {
+      print("Error al comprobar nombre de usuario: $e");
+      return true; // En caso de error, asumimos que existe para evitar duplicados
+    }
+  }
+
   // Stream que escucha cambios del perfil en tiempo real
   Stream<Usuario?> escucharUsuario(String uid) {
     return _firestore

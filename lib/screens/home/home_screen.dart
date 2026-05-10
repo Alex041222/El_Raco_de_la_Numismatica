@@ -44,6 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final miUid = authProvider.usuarioFirebase?.uid;
       
       if (miUid != null) {
+        final carritoProvider = Provider.of<CarritoProvider>(context, listen: false);
+        
+        // Inicializar la sincronización del carrito persistente
+        carritoProvider.inicializar(miUid);
+
         _subastaSubscription = _monedaService.obtenerSubastasGanadas(miUid).listen((subastas) {
           if (!mounted) return;
           final carritoProvider = Provider.of<CarritoProvider>(context, listen: false);

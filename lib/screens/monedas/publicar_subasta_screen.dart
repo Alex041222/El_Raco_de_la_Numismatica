@@ -109,7 +109,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
 
       if (_fechaFinElegida == null || _fechaFinElegida!.isBefore(DateTime.now())) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Selecciona una fecha de fin válida (en el futuro)')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.fechaFinValida)),
         );
         setState(() => _cargando = false);
         return;
@@ -159,7 +159,7 @@ class _PublicarSubastaScreenState extends State<PublicarSubastaScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al publicar: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorPublicar}: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );

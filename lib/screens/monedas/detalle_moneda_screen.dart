@@ -187,7 +187,7 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
               // Contenido de la moneda
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -353,6 +353,13 @@ class _DetalleMonedaScreenState extends State<DetalleMonedaScreen> {
                         ),
                     ],
                   ),
+                ),
+              ),
+
+              // Espai per la barra de navegació del sistema
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 24,
                 ),
               ),
             ],

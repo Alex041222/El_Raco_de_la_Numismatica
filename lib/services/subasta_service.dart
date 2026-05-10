@@ -28,7 +28,7 @@ class SubastaService {
           .doc(monedaId)
           .get();
 
-      if (!subastaDoc.exists) throw Exception('La subasta no existe');
+      if (!subastaDoc.exists) throw Exception('subastaNoExiste');
 
       final data = subastaDoc.data() as Map<String, dynamic>;
       final precioActual = (data['precioActual'] ?? 0).toDouble();
@@ -36,9 +36,9 @@ class SubastaService {
       final disponible = data['disponible'] ?? false;
 
       // Comprobaciones antes de pujar
-      if (!disponible) throw Exception('La subasta ya ha terminado');
-      if (DateTime.now().isAfter(fechaFin)) throw Exception('La subasta ha caducado');
-      if (importe <= precioActual) throw Exception('La puja debe ser mayor que el precio actual');
+      if (!disponible) throw Exception('subastaTerminada');
+      if (DateTime.now().isAfter(fechaFin)) throw Exception('subastaCaducada');
+      if (importe <= precioActual) throw Exception('pujaMayorPrecio');
 
       // Crear el documento de la puja nueva
       final nuevaPuja = _firestore.collection('pujas').doc();

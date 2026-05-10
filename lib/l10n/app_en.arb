@@ -164,5 +164,21 @@
   "configuracionSubasta": "Auction configuration",
   "precioSalida": "Starting price (€)",
   "seleccionarFechaFin": "Select end date and time",
-  "alas": "at"
+  "alas": "at",
+  "escribeComentarioObligatorio": "Please write a comment",
+  "resenaEnviada": "Review sent successfully",
+  "perfilActualizado": "Profile updated successfully",
+  "errorGuardar": "Error saving",
+  "monedaPublicada": "Coin published successfully",
+  "errorPublicar": "Error publishing",
+  "fechaFinValida": "Select a valid end date (in the future)",
+  "subastaNoExiste": "The auction does not exist",
+  "subastaTerminada": "The auction has already ended",
+  "subastaCaducada": "The auction has expired",
+  "pujaMayorPrecio": "The bid must be higher than the current price",
+  "resenaYaExiste": "You have already left a review for this seller",
+  "resenaATiMismo": "You cannot leave a review for yourself",
+  "monedaNoDisponible": "One of the coins is no longer available or was removed by the seller.",
+  "monedaNoExiste": "One of the coins no longer exists in the database.",
+  "nombreUsuarioEnUso": "The username is already taken, choose another one"
 }

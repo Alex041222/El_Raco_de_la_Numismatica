@@ -10,42 +10,45 @@ class PedidoService {
   // Se usa cuando el usuario confirma la compra del carrito
   Future<void> crearPedido(Pedido pedido, List<ItemPedido> items) async {
     try {
-      // Usamos una transacción para que todo se guarde junto
-      // Si algo falla, no se guarda nada (evita pedidos incompletos)
       await _firestore.runTransaction((transaction) async {
 
-        // Crear el documento del pedido
-        final pedidoRef = _firestore
-            .collection('pedidos')
-            .doc(pedido.pedidoId);
+        // ── 1. PRIMER TOTES LES LECTURES ──────────────────────────────
+        // Firestore exigeix que tots els get() es facin ABANS de qualsevol set/update
+        final monedaRefs = items.map((item) {
+          final coleccion = item.esSubasta ? 'monedas_subasta' : 'monedas_venta';
+          return _firestore.collection(coleccion).doc(item.monedaId);
+        }).toList();
+
+        final snapshots = await Future.wait(
+          monedaRefs.map((ref) => transaction.get(ref)),
+        );
+
+        // Validar que totes les monedes existeixen
+        for (int i = 0; i < snapshots.length; i++) {
+          if (!snapshots[i].exists) {
+            throw Exception('monedaNoDisponible');
+          }
+        }
+
+        // ── 2. DESPRÉS TOTES LES ESCRIPTURES ──────────────────────────
+        // Crear el document del pedido
+        final pedidoRef = _firestore.collection('pedidos').doc(pedido.pedidoId);
         transaction.set(pedidoRef, pedido.toFirestore());
 
-        // Crear un documento por cada item del carrito
+        // Crear un document per cada item del carrito
         for (final item in items) {
-          final itemRef = _firestore
-              .collection('items_pedido')
-              .doc(item.itemId);
+          final itemRef = _firestore.collection('items_pedido').doc(item.itemId);
           transaction.set(itemRef, item.toFirestore());
         }
 
-        // Marcar cada moneda como no disponible
-        for (final item in items) {
-          final coleccion = item.esSubasta ? 'monedas_subasta' : 'monedas_venta';
-          final monedaRef = _firestore
-              .collection(coleccion)
-              .doc(item.monedaId);
-          
-          final docSnapshot = await transaction.get(monedaRef);
-          if (docSnapshot.exists) {
-            transaction.update(monedaRef, {'disponible': false});
-          } else {
-            throw Exception('Una de las monedas ya no está disponible o ha sido eliminada por el vendedor.');
-          }
+        // Marcar cada moneda com a no disponible
+        for (int i = 0; i < monedaRefs.length; i++) {
+          transaction.update(monedaRefs[i], {'disponible': false});
         }
       });
     } catch (e) {
       if (e is FirebaseException && e.code == 'not-found') {
-        throw Exception('Una de las monedas ya no existe en la base de datos.');
+        throw Exception('monedaNoExiste');
       }
       rethrow;
     }

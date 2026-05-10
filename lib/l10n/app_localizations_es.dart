@@ -507,4 +507,56 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get alas => 'a las';
+
+  @override
+  String get escribeComentarioObligatorio => 'Escribe un comentario';
+
+  @override
+  String get resenaEnviada => 'Reseña enviada correctamente';
+
+  @override
+  String get perfilActualizado => 'Perfil actualizado correctamente';
+
+  @override
+  String get errorGuardar => 'Error al guardar';
+
+  @override
+  String get monedaPublicada => 'Moneda publicada correctamente';
+
+  @override
+  String get errorPublicar => 'Error al publicar';
+
+  @override
+  String get fechaFinValida =>
+      'Selecciona una fecha de fin válida (en el futuro)';
+
+  @override
+  String get subastaNoExiste => 'La subasta no existe';
+
+  @override
+  String get subastaTerminada => 'La subasta ya ha terminado';
+
+  @override
+  String get subastaCaducada => 'La subasta ha caducado';
+
+  @override
+  String get pujaMayorPrecio => 'La puja debe ser mayor que el precio actual';
+
+  @override
+  String get resenaYaExiste => 'Ya has dejado una reseña a este vendedor';
+
+  @override
+  String get resenaATiMismo => 'No puedes dejarte una reseña a ti mismo';
+
+  @override
+  String get monedaNoDisponible =>
+      'Una de las monedas ya no está disponible o ha sido eliminada por el vendedor.';
+
+  @override
+  String get monedaNoExiste =>
+      'Una de las monedas ya no existe en la base de datos.';
+
+  @override
+  String get nombreUsuarioEnUso =>
+      'El nombre de usuario ya está elegido, elige otro';
 }

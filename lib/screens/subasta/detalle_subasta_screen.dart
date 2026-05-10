@@ -108,8 +108,8 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
               final importe = double.tryParse(_pujaController.text.trim());
               if (importe == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Introduce un importe válido')),
+                  SnackBar(
+                      content: Text(AppLocalizations.of(context)!.importeValido)),
                 );
                 return;
               }
@@ -124,17 +124,29 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
                 );
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Puja realizada correctamente'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.pujaCorrecta),
                       backgroundColor: Colors.green,
                     ),
                   );
                 }
               } catch (e) {
                 if (mounted) {
+                  String msg = e.toString().replaceAll('Exception: ', '');
+                  String translatedMsg = msg;
+                  if (msg == 'subastaNoExiste') {
+                    translatedMsg = AppLocalizations.of(context)!.subastaNoExiste;
+                  } else if (msg == 'subastaTerminada') {
+                    translatedMsg = AppLocalizations.of(context)!.subastaTerminada;
+                  } else if (msg == 'subastaCaducada') {
+                    translatedMsg = AppLocalizations.of(context)!.subastaCaducada;
+                  } else if (msg == 'pujaMayorPrecio') {
+                    translatedMsg = AppLocalizations.of(context)!.pujaMayorPrecio;
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(e.toString().replaceAll('Exception: ', '')),
+                      content: Text(translatedMsg),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -552,7 +564,7 @@ class _DetalleSubastaScreenState extends State<DetalleSubastaScreen> {
 }
 
 // Widget lista de subastas activas (pantalla principal de subastas)
-class _ListaSubastas extends StatelessWidget {
+class _ListaSubastas extends StatefulWidget {
   final MonedaService monedaService;
   final SubastaService subastaService;
 
@@ -562,6 +574,20 @@ class _ListaSubastas extends StatelessWidget {
   });
 
   @override
+  State<_ListaSubastas> createState() => _ListaSubastasState();
+}
+
+class _ListaSubastasState extends State<_ListaSubastas> {
+  final _busquedaController = TextEditingController();
+  String _textoBusqueda = '';
+
+  @override
+  void dispose() {
+    _busquedaController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final usuarioService = UsuarioService();
     return Scaffold(
@@ -569,41 +595,82 @@ class _ListaSubastas extends StatelessWidget {
         title: Text(AppLocalizations.of(context)!.subastasActivas),
         automaticallyImplyLeading: false,
       ),
-      body: StreamBuilder<List<MonedaSubasta>>(
-        stream: monedaService.obtenerSubastasActivas(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFFB8860B)),
-            );
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.gavel, size: 60, color: Colors.grey),
-                  SizedBox(height: 12),
-                  Text(
-                    'No hay subastas activas',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
+      body: Column(
+        children: [
+          // Barra de búsqueda
+          Padding(
             padding: const EdgeInsets.all(12),
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final moneda = snapshot.data![index];
+            child: TextField(
+              controller: _busquedaController,
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.hintBuscar,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+              onChanged: (value) {
+                setState(() => _textoBusqueda = value.toLowerCase());
+              },
+            ),
+          ),
+
+          // Lista de subastas
+          Expanded(
+            child: StreamBuilder<List<MonedaSubasta>>(
+              stream: widget.monedaService.obtenerSubastasActivas(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFFB8860B)),
+                  );
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.gavel, size: 60, color: Colors.grey),
+                        SizedBox(height: 12),
+                        Text(
+                          'No hay subastas activas',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Filtrar por texto de búsqueda
+                final subastas = snapshot.data!.where((moneda) {
+                  if (_textoBusqueda.isEmpty) return true;
+                  return moneda.nom.toLowerCase().contains(_textoBusqueda) ||
+                      moneda.pais.toLowerCase().contains(_textoBusqueda) ||
+                      moneda.periodo.toLowerCase().contains(_textoBusqueda);
+                }).toList();
+
+                if (subastas.isEmpty) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context)!.noResultados,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: subastas.length,
+                  itemBuilder: (context, index) {
+                    final moneda = subastas[index];
               final haTerminado = DateTime.now().isAfter(moneda.fechaFin);
 
               // Si ha terminado la cerramos automáticamente
               if (haTerminado) {
-                subastaService.comprobarYCerrarSubasta(moneda.monedaId);
+                widget.subastaService.comprobarYCerrarSubasta(moneda.monedaId);
               }
 
               return GestureDetector(
@@ -724,7 +791,10 @@ class _ListaSubastas extends StatelessWidget {
               );
             },
           );
-        },
+            },
+          ),
+        ),
+      ],
       ),
     );
   }

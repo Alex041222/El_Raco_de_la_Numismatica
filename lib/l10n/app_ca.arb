@@ -164,5 +164,21 @@
   "configuracionSubasta": "Configuració de la subhasta",
   "precioSalida": "Preu de sortida (€)",
   "seleccionarFechaFin": "Seleccionar data i hora de fi",
-  "alas": "a les"
+  "alas": "a les",
+  "escribeComentarioObligatorio": "Escriu un comentari",
+  "resenaEnviada": "Ressenya enviada correctament",
+  "perfilActualizado": "Perfil actualitzat correctament",
+  "errorGuardar": "Error en guardar",
+  "monedaPublicada": "Moneda publicada correctament",
+  "errorPublicar": "Error en publicar",
+  "fechaFinValida": "Selecciona una data de fi vàlida (en el futur)",
+  "subastaNoExiste": "La subhasta no existeix",
+  "subastaTerminada": "La subhasta ja ha acabat",
+  "subastaCaducada": "La subhasta ha caducat",
+  "pujaMayorPrecio": "La puja ha de ser major que el preu actual",
+  "resenaYaExiste": "Ja has deixat una ressenya a aquest venedor",
+  "resenaATiMismo": "No pots deixar-te una ressenya a tu mateix",
+  "monedaNoDisponible": "Una de les monedes ja no està disponible o ha estat eliminada pel venedor.",
+  "monedaNoExiste": "Una de les monedes ja no existeix a la base de dades.",
+  "nombreUsuarioEnUso": "El nom d'usuari ja està escollit, tria'n un altre"
 }

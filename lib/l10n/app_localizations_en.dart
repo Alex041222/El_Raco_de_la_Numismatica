@@ -506,4 +506,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alas => 'at';
+
+  @override
+  String get escribeComentarioObligatorio => 'Please write a comment';
+
+  @override
+  String get resenaEnviada => 'Review sent successfully';
+
+  @override
+  String get perfilActualizado => 'Profile updated successfully';
+
+  @override
+  String get errorGuardar => 'Error saving';
+
+  @override
+  String get monedaPublicada => 'Coin published successfully';
+
+  @override
+  String get errorPublicar => 'Error publishing';
+
+  @override
+  String get fechaFinValida => 'Select a valid end date (in the future)';
+
+  @override
+  String get subastaNoExiste => 'The auction does not exist';
+
+  @override
+  String get subastaTerminada => 'The auction has already ended';
+
+  @override
+  String get subastaCaducada => 'The auction has expired';
+
+  @override
+  String get pujaMayorPrecio => 'The bid must be higher than the current price';
+
+  @override
+  String get resenaYaExiste => 'You have already left a review for this seller';
+
+  @override
+  String get resenaATiMismo => 'You cannot leave a review for yourself';
+
+  @override
+  String get monedaNoDisponible =>
+      'One of the coins is no longer available or was removed by the seller.';
+
+  @override
+  String get monedaNoExiste =>
+      'One of the coins no longer exists in the database.';
+
+  @override
+  String get nombreUsuarioEnUso =>
+      'The username is already taken, choose another one';
 }

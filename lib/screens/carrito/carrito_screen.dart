@@ -46,256 +46,346 @@ class _CarritoScreenState extends State<CarritoScreen> {
     _caducidadController.clear();
     _cvvController.clear();
 
-    await showDialog(
+    await showModalBottomSheet(
       context: context,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: AlertDialog(
-          title: Text(AppLocalizations.of(context)!.confirmarCompra, style: TextStyle(fontWeight: FontWeight.bold)),
-          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _checkoutFormKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB8860B).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${AppLocalizations.of(context)!.totalPagar}:', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                          '${carritoProvider.total.toStringAsFixed(2)} €',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
-                        ),
-                      ],
-                    ),
+      isScrollControlled: true,
+      isDismissible: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateSheet) => Padding(
+          // Puja el contingut per sobre del teclat
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.85,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (_, scrollController) => Column(
+              children: [
+                // Handle visual
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(height: 20),
-                  Text('📦 ${AppLocalizations.of(context)!.envio}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 10),
+                ),
 
-                  // Dirección
-                  TextFormField(
-                    controller: _direccionController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.direccionEnvio,
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(),
-                      hintText: AppLocalizations.of(context)!.hintDireccion,
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.direccionObligatoria : null,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Teléfono
-                  TextFormField(
-                    controller: _telefonoController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.telefonoContacto,
-                      prefixIcon: Icon(Icons.phone_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return AppLocalizations.of(context)!.telefonoObligatorio;
-                      if (v.trim().length < 9) return AppLocalizations.of(context)!.telefonoValido;
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  Text('💳 ${AppLocalizations.of(context)!.datosPago}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 10),
-
-                  // Número de tarjeta
-                  TextFormField(
-                    controller: _numTarjetaController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 19,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.numTarjeta,
-                      prefixIcon: Icon(Icons.credit_card),
-                      border: OutlineInputBorder(),
-                      hintText: 'XXXX XXXX XXXX XXXX',
-                      counterText: '',
-                    ),
-                    onChanged: (v) {
-                      final digits = v.replaceAll(' ', '');
-                      final formatted = digits.replaceAllMapped(RegExp(r'.{1,4}'), (m) => '${m.group(0)} ').trim();
-                      if (formatted != v) {
-                        _numTarjetaController.value = TextEditingValue(
-                          text: formatted,
-                          selection: TextSelection.collapsed(offset: formatted.length),
-                        );
-                      }
-                    },
-                    validator: (v) {
-                      final digits = (v ?? '').replaceAll(' ', '');
-                      if (digits.isEmpty) return 'El número de tarjeta es obligatorio';
-                      if (digits.length != 16) return AppLocalizations.of(context)!.introduce16;
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-
-                  Row(
+                // Títol
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                  child: Row(
                     children: [
-                      // Fecha caducidad
-                      Expanded(
-                        child: TextFormField(
-                          controller: _caducidadController,
-                          keyboardType: TextInputType.number,
-                          maxLength: 5,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.caducidad,
-                            prefixIcon: Icon(Icons.calendar_today, size: 18),
-                            border: OutlineInputBorder(),
-                            hintText: 'MM/AA',
-                            counterText: '',
-                          ),
-                          onChanged: (v) {
-                            final digits = v.replaceAll('/', '');
-                            String formatted = digits;
-                            if (digits.length >= 3) {
-                              formatted = '${digits.substring(0, 2)}/${digits.substring(2)}';
-                            }
-                            if (formatted != v) {
-                              _caducidadController.value = TextEditingValue(
-                                text: formatted,
-                                selection: TextSelection.collapsed(offset: formatted.length),
-                              );
-                            }
-                          },
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'Obligatorio';
-                            if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(v.trim())) return AppLocalizations.of(context)!.formatoMMAA;
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // CVV
-                      Expanded(
-                        child: TextFormField(
-                          controller: _cvvController,
-                          keyboardType: TextInputType.number,
-                          maxLength: 4,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.cvv,
-                            prefixIcon: Icon(Icons.lock_outline, size: 18),
-                            border: OutlineInputBorder(),
-                            hintText: '***',
-                            counterText: '',
-                          ),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'Obligatorio';
-                            if (v.trim().length < 3) return AppLocalizations.of(context)!.min3Digitos;
-                            return null;
-                          },
-                        ),
+                      const Icon(Icons.shopping_bag_outlined, color: Color(0xFFB8860B)),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(ctx)!.confirmarCompra,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                    Text(
-                      AppLocalizations.of(context)!.pagoSimulado,
-                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
+
+                // Formulari scrollable
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: Form(
+                      key: _checkoutFormKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Total a pagar
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB8860B).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('${AppLocalizations.of(ctx)!.totalPagar}:',
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  '${carritoProvider.total.toStringAsFixed(2)} €',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          Text('📦 ${AppLocalizations.of(ctx)!.envio}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          const SizedBox(height: 10),
+
+                          // Adreça
+                          TextFormField(
+                            controller: _direccionController,
+                            maxLines: 2,
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(ctx)!.direccionEnvio,
+                              prefixIcon: const Icon(Icons.location_on_outlined),
+                              border: const OutlineInputBorder(),
+                              hintText: AppLocalizations.of(ctx)!.hintDireccion,
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? AppLocalizations.of(ctx)!.direccionObligatoria
+                                : null,
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Telèfon
+                          TextFormField(
+                            controller: _telefonoController,
+                            keyboardType: TextInputType.phone,
+                            maxLength: 11, // 9 dígits + 2 espais
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(ctx)!.telefonoContacto,
+                              prefixIcon: const Icon(Icons.phone_outlined),
+                              border: const OutlineInputBorder(),
+                              hintText: 'XXX XXX XXX',
+                              counterText: '',
+                            ),
+                            onChanged: (v) {
+                              final digits = v.replaceAll(' ', '');
+                              // Agrupar en grups de 3: XXX XXX XXX
+                              final formatted = digits
+                                  .replaceAllMapped(RegExp(r'.{1,3}'), (m) => '${m.group(0)} ')
+                                  .trim();
+                              if (formatted != v) {
+                                _telefonoController.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                );
+                              }
+                            },
+                            validator: (v) {
+                              final digits = (v ?? '').replaceAll(' ', '');
+                              if (digits.isEmpty) return AppLocalizations.of(ctx)!.telefonoObligatorio;
+                              if (digits.length < 9) return AppLocalizations.of(ctx)!.telefonoValido;
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          Text('💳 ${AppLocalizations.of(ctx)!.datosPago}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          const SizedBox(height: 10),
+
+                          // Número targeta
+                          TextFormField(
+                            controller: _numTarjetaController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 19,
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(ctx)!.numTarjeta,
+                              prefixIcon: const Icon(Icons.credit_card),
+                              border: const OutlineInputBorder(),
+                              hintText: 'XXXX XXXX XXXX XXXX',
+                              counterText: '',
+                            ),
+                            onChanged: (v) {
+                              final digits = v.replaceAll(' ', '');
+                              final formatted = digits.replaceAllMapped(RegExp(r'.{1,4}'), (m) => '${m.group(0)} ').trim();
+                              if (formatted != v) {
+                                _numTarjetaController.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                );
+                              }
+                            },
+                            validator: (v) {
+                              final digits = (v ?? '').replaceAll(' ', '');
+                              if (digits.isEmpty) return AppLocalizations.of(ctx)!.introduce16;
+                              if (digits.length != 16) return AppLocalizations.of(ctx)!.introduce16;
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+
+                          Row(
+                            children: [
+                              // Data caducitat
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _caducidadController,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 5,
+                                  decoration: InputDecoration(
+                                    labelText: AppLocalizations.of(ctx)!.caducidad,
+                                    prefixIcon: const Icon(Icons.calendar_today, size: 18),
+                                    border: const OutlineInputBorder(),
+                                    hintText: 'MM/AA',
+                                    counterText: '',
+                                  ),
+                                  onChanged: (v) {
+                                    final digits = v.replaceAll('/', '');
+                                    String formatted = digits;
+                                    if (digits.length >= 3) {
+                                      formatted = '${digits.substring(0, 2)}/${digits.substring(2)}';
+                                    }
+                                    if (formatted != v) {
+                                      _caducidadController.value = TextEditingValue(
+                                        text: formatted,
+                                        selection: TextSelection.collapsed(offset: formatted.length),
+                                      );
+                                    }
+                                  },
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty) return 'Obligatori';
+                                    if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(v.trim()))
+                                      return AppLocalizations.of(ctx)!.formatoMMAA;
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // CVV
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _cvvController,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 4,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    labelText: AppLocalizations.of(ctx)!.cvv,
+                                    prefixIcon: const Icon(Icons.lock_outline, size: 18),
+                                    border: const OutlineInputBorder(),
+                                    hintText: '3-4 dígits',
+                                    counterText: '',
+                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty) return 'Obligatori';
+                                    if (v.trim().length < 3) return AppLocalizations.of(ctx)!.min3Digitos;
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Botons acció
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    side: const BorderSide(color: Color(0xFFB8860B)),
+                                    foregroundColor: const Color(0xFFB8860B),
+                                  ),
+                                  child: Text(AppLocalizations.of(ctx)!.cancelar),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                flex: 2,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (!_checkoutFormKey.currentState!.validate()) return;
+                                    Navigator.pop(ctx);
+                                    setState(() => _cargando = true);
+
+                                    try {
+                                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                      final uid = authProvider.usuarioFirebase!.uid;
+
+                                      final itemsPorVendedor = <String, List<dynamic>>{};
+                                      for (final moneda in carritoProvider.items) {
+                                        if (!itemsPorVendedor.containsKey(moneda.vendedorId)) {
+                                          itemsPorVendedor[moneda.vendedorId] = [];
+                                        }
+                                        itemsPorVendedor[moneda.vendedorId]!.add(moneda);
+                                      }
+
+                                      for (final entry in itemsPorVendedor.entries) {
+                                        final vendedorId = entry.key;
+                                        final monedas = entry.value;
+                                        final total = monedas.fold<double>(0, (suma, m) => suma + m.precio);
+                                        final pedidoId = const Uuid().v4();
+
+                                        final items = monedas.map((m) => ItemPedido(
+                                          itemId: const Uuid().v4(),
+                                          pedidoId: pedidoId,
+                                          monedaId: m.monedaId,
+                                          precioUnitario: m.precio,
+                                          tituloSnapshot: m.nom,
+                                          esSubasta: carritoProvider.estaBloqueado(m.monedaId),
+                                        )).toList();
+
+                                        final pedido = Pedido(
+                                          pedidoId: pedidoId,
+                                          compradorId: uid,
+                                          vendedorId: vendedorId,
+                                          total: total,
+                                          direccionEnvio: _direccionController.text.trim(),
+                                          fechaCreacion: DateTime.now(),
+                                        );
+
+                                        await _pedidoService.crearPedido(pedido, items);
+                                      }
+
+                                      carritoProvider.vaciarTodo();
+
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(AppLocalizations.of(context)!.compraCorrecta),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                        context.pop();
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        String msg = e.toString().replaceAll('Exception: ', '');
+                                        String translatedMsg = msg;
+                                        if (msg == 'monedaNoDisponible') {
+                                          translatedMsg = AppLocalizations.of(context)!.monedaNoDisponible;
+                                        } else if (msg == 'monedaNoExiste') {
+                                          translatedMsg = AppLocalizations.of(context)!.monedaNoExiste;
+                                        } else {
+                                          translatedMsg = '${AppLocalizations.of(context)!.errorCompra}: $msg';
+                                        }
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(translatedMsg),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      setState(() => _cargando = false);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFB8860B),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+                                  child: Text(AppLocalizations.of(ctx)!.pagar),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  const SizedBox(height: 8),
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (!_checkoutFormKey.currentState!.validate()) return;
-                Navigator.pop(ctx);
-                setState(() => _cargando = true);
-
-                try {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                  final uid = authProvider.usuarioFirebase!.uid;
-
-                  final itemsPorVendedor = <String, List<dynamic>>{};
-                  for (final moneda in carritoProvider.items) {
-                    if (!itemsPorVendedor.containsKey(moneda.vendedorId)) {
-                      itemsPorVendedor[moneda.vendedorId] = [];
-                    }
-                    itemsPorVendedor[moneda.vendedorId]!.add(moneda);
-                  }
-
-                  for (final entry in itemsPorVendedor.entries) {
-                    final vendedorId = entry.key;
-                    final monedas = entry.value;
-                    final total = monedas.fold<double>(0, (suma, m) => suma + m.precio);
-                    final pedidoId = const Uuid().v4();
-
-                    final items = monedas.map((m) => ItemPedido(
-                      itemId: const Uuid().v4(),
-                      pedidoId: pedidoId,
-                      monedaId: m.monedaId,
-                      precioUnitario: m.precio,
-                      tituloSnapshot: m.nom,
-                      esSubasta: carritoProvider.estaBloqueado(m.monedaId),
-                    )).toList();
-
-                    final pedido = Pedido(
-                      pedidoId: pedidoId,
-                      compradorId: uid,
-                      vendedorId: vendedorId,
-                      total: total,
-                      direccionEnvio: _direccionController.text.trim(),
-                      fechaCreacion: DateTime.now(),
-                    );
-
-                    await _pedidoService.crearPedido(pedido, items);
-                  }
-
-                  carritoProvider.vaciarTodo();
-
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(AppLocalizations.of(context)!.compraCorrecta),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                    context.pop();
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${AppLocalizations.of(context)!.errorCompra}: $e'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                } finally {
-                  setState(() => _cargando = false);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB8860B),
-                foregroundColor: Colors.white,
-              ),
-              child: Text(AppLocalizations.of(context)!.pagar),
-            ),
-          ],
         ),
       ),
     );
@@ -488,8 +578,10 @@ class _CarritoScreenState extends State<CarritoScreen> {
           ),
 
           // Resumen del total y botón comprar
-          Container(
-            padding: const EdgeInsets.all(16),
+          SafeArea(
+            top: false,
+            child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               boxShadow: [
@@ -545,6 +637,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ],
       ),

@@ -162,6 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final miUid = firebaseUser.uid;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(_nombreOtroUsuario.isEmpty ? AppLocalizations.of(context)!.cargando : _nombreOtroUsuario),
       ),
@@ -212,7 +213,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
 
           // Barra de entrada de mensaje
-          Container(
+          SafeArea(
+            top: false,
+            child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
@@ -286,6 +289,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ],
       ),

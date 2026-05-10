@@ -1095,6 +1095,102 @@ abstract class AppLocalizations {
   /// In ca, this message translates to:
   /// **'a les'**
   String get alas;
+
+  /// No description provided for @escribeComentarioObligatorio.
+  ///
+  /// In ca, this message translates to:
+  /// **'Escriu un comentari'**
+  String get escribeComentarioObligatorio;
+
+  /// No description provided for @resenaEnviada.
+  ///
+  /// In ca, this message translates to:
+  /// **'Ressenya enviada correctament'**
+  String get resenaEnviada;
+
+  /// No description provided for @perfilActualizado.
+  ///
+  /// In ca, this message translates to:
+  /// **'Perfil actualitzat correctament'**
+  String get perfilActualizado;
+
+  /// No description provided for @errorGuardar.
+  ///
+  /// In ca, this message translates to:
+  /// **'Error en guardar'**
+  String get errorGuardar;
+
+  /// No description provided for @monedaPublicada.
+  ///
+  /// In ca, this message translates to:
+  /// **'Moneda publicada correctament'**
+  String get monedaPublicada;
+
+  /// No description provided for @errorPublicar.
+  ///
+  /// In ca, this message translates to:
+  /// **'Error en publicar'**
+  String get errorPublicar;
+
+  /// No description provided for @fechaFinValida.
+  ///
+  /// In ca, this message translates to:
+  /// **'Selecciona una data de fi vàlida (en el futur)'**
+  String get fechaFinValida;
+
+  /// No description provided for @subastaNoExiste.
+  ///
+  /// In ca, this message translates to:
+  /// **'La subhasta no existeix'**
+  String get subastaNoExiste;
+
+  /// No description provided for @subastaTerminada.
+  ///
+  /// In ca, this message translates to:
+  /// **'La subhasta ja ha acabat'**
+  String get subastaTerminada;
+
+  /// No description provided for @subastaCaducada.
+  ///
+  /// In ca, this message translates to:
+  /// **'La subhasta ha caducat'**
+  String get subastaCaducada;
+
+  /// No description provided for @pujaMayorPrecio.
+  ///
+  /// In ca, this message translates to:
+  /// **'La puja ha de ser major que el preu actual'**
+  String get pujaMayorPrecio;
+
+  /// No description provided for @resenaYaExiste.
+  ///
+  /// In ca, this message translates to:
+  /// **'Ja has deixat una ressenya a aquest venedor'**
+  String get resenaYaExiste;
+
+  /// No description provided for @resenaATiMismo.
+  ///
+  /// In ca, this message translates to:
+  /// **'No pots deixar-te una ressenya a tu mateix'**
+  String get resenaATiMismo;
+
+  /// No description provided for @monedaNoDisponible.
+  ///
+  /// In ca, this message translates to:
+  /// **'Una de les monedes ja no està disponible o ha estat eliminada pel venedor.'**
+  String get monedaNoDisponible;
+
+  /// No description provided for @monedaNoExiste.
+  ///
+  /// In ca, this message translates to:
+  /// **'Una de les monedes ja no existeix a la base de dades.'**
+  String get monedaNoExiste;
+
+  /// No description provided for @nombreUsuarioEnUso.
+  ///
+  /// In ca, this message translates to:
+  /// **'El nom d\'usuari ja està escollit, tria\'n un altre'**
+  String get nombreUsuarioEnUso;
 }
 
 class _AppLocalizationsDelegate

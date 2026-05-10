@@ -132,8 +132,8 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Moneda publicada correctamente'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.monedaPublicada),
             backgroundColor: Colors.green,
           ),
         );
@@ -143,7 +143,7 @@ class _PublicarVentaScreenState extends State<PublicarVentaScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al publicar: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorPublicar}: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );

@@ -164,5 +164,21 @@
   "configuracionSubasta": "Configuración de la subasta",
   "precioSalida": "Precio de salida (€)",
   "seleccionarFechaFin": "Seleccionar fecha y hora de fin",
-  "alas": "a las"
+  "alas": "a las",
+  "escribeComentarioObligatorio": "Escribe un comentario",
+  "resenaEnviada": "Reseña enviada correctamente",
+  "perfilActualizado": "Perfil actualizado correctamente",
+  "errorGuardar": "Error al guardar",
+  "monedaPublicada": "Moneda publicada correctamente",
+  "errorPublicar": "Error al publicar",
+  "fechaFinValida": "Selecciona una fecha de fin válida (en el futuro)",
+  "subastaNoExiste": "La subasta no existe",
+  "subastaTerminada": "La subasta ya ha terminado",
+  "subastaCaducada": "La subasta ha caducado",
+  "pujaMayorPrecio": "La puja debe ser mayor que el precio actual",
+  "resenaYaExiste": "Ya has dejado una reseña a este vendedor",
+  "resenaATiMismo": "No puedes dejarte una reseña a ti mismo",
+  "monedaNoDisponible": "Una de las monedas ya no está disponible o ha sido eliminada por el vendedor.",
+  "monedaNoExiste": "Una de las monedas ya no existe en la base de datos.",
+  "nombreUsuarioEnUso": "El nombre de usuario ya está elegido, elige otro"
 }

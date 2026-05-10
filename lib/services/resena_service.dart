@@ -42,11 +42,11 @@ class ResenaService {
     try {
       // Comprobar que el usuario no ha dejado ya una reseña
       final yaExiste = await yaHaDejadoResena(resena.autorId, resena.vendedorId);
-      if (yaExiste) throw Exception('Ya has dejado una reseña a este vendedor');
+      if (yaExiste) throw Exception('resenaYaExiste');
 
       // Comprobar que el usuario no se reseña a si mismo
       if (resena.autorId == resena.vendedorId) {
-        throw Exception('No puedes dejarte una reseña a ti mismo');
+        throw Exception('resenaATiMismo');
       }
 
       // Guardar la reseña en Firestore
