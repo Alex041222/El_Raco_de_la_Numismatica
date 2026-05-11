@@ -558,4 +558,20 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get nombreUsuarioEnUso =>
       'El nom d\'usuari ja està escollit, tria\'n un altre';
+
+  @override
+  String get venedorsRecomanats => 'Venedors recomanats';
+
+  @override
+  String get noVenedors => 'Encara no hi ha venedors';
+
+  @override
+  String get venedorsMasRessenyes =>
+      'Els venedors amb més ressenyes positives apareixeran aquí';
+
+  @override
+  String get tocaCambiarFoto => 'Toca per canviar la foto';
+
+  @override
+  String get guardarCambios => 'Guardar canvis';
 }

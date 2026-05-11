@@ -1191,6 +1191,36 @@ abstract class AppLocalizations {
   /// In ca, this message translates to:
   /// **'El nom d\'usuari ja està escollit, tria\'n un altre'**
   String get nombreUsuarioEnUso;
+
+  /// No description provided for @venedorsRecomanats.
+  ///
+  /// In ca, this message translates to:
+  /// **'Venedors recomanats'**
+  String get venedorsRecomanats;
+
+  /// No description provided for @noVenedors.
+  ///
+  /// In ca, this message translates to:
+  /// **'Encara no hi ha venedors'**
+  String get noVenedors;
+
+  /// No description provided for @venedorsMasRessenyes.
+  ///
+  /// In ca, this message translates to:
+  /// **'Els venedors amb més ressenyes positives apareixeran aquí'**
+  String get venedorsMasRessenyes;
+
+  /// No description provided for @tocaCambiarFoto.
+  ///
+  /// In ca, this message translates to:
+  /// **'Toca per canviar la foto'**
+  String get tocaCambiarFoto;
+
+  /// No description provided for @guardarCambios.
+  ///
+  /// In ca, this message translates to:
+  /// **'Guardar canvis'**
+  String get guardarCambios;
 }
 
 class _AppLocalizationsDelegate

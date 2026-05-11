@@ -132,7 +132,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar perfil'),
+        title: Text(AppLocalizations.of(context)!.editarPerfil),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -177,26 +177,26 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Toca para cambiar la foto',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              Text(
+                AppLocalizations.of(context)!.tocaCambiarFoto,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 24),
 
               // Campo nombre de usuario
               TextFormField(
                 controller: _nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de usuario',
-                  prefixIcon: Icon(Icons.person_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.nombreUsuario,
+                  prefixIcon: const Icon(Icons.person_outlined),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El nombre de usuario es obligatorio';
+                    return AppLocalizations.of(context)!.nombreObligatorio;
                   }
                   if (value.length < 3) {
-                    return 'El nombre debe tener al menos 3 caracteres';
+                    return AppLocalizations.of(context)!.nombreCorto;
                   }
                   return null;
                 },
@@ -208,10 +208,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 controller: _biografiaController,
                 maxLines: 3,
                 maxLength: 200,
-                decoration: const InputDecoration(
-                  labelText: 'Biografia (opcional)',
-                  prefixIcon: Icon(Icons.info_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.biografiaOpcional,
+                  prefixIcon: const Icon(Icons.info_outlined),
+                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
               ),
@@ -220,10 +220,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               // Campo dirección
               TextFormField(
                 controller: _direccionController,
-                decoration: const InputDecoration(
-                  labelText: 'Dirección (opcional)',
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.direccionOpcional,
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 32),
@@ -240,9 +240,9 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   ),
                   child: _cargando
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    'Guardar cambios',
-                    style: TextStyle(fontSize: 16),
+                      : Text(
+                    AppLocalizations.of(context)!.guardarCambios,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),

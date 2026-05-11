@@ -180,5 +180,10 @@
   "resenaATiMismo": "No pots deixar-te una ressenya a tu mateix",
   "monedaNoDisponible": "Una de les monedes ja no està disponible o ha estat eliminada pel venedor.",
   "monedaNoExiste": "Una de les monedes ja no existeix a la base de dades.",
-  "nombreUsuarioEnUso": "El nom d'usuari ja està escollit, tria'n un altre"
+  "nombreUsuarioEnUso": "El nom d'usuari ja està escollit, tria'n un altre",
+  "venedorsRecomanats": "Venedors recomanats",
+  "noVenedors": "Encara no hi ha venedors",
+  "venedorsMasRessenyes": "Els venedors amb més ressenyes positives apareixeran aquí",
+  "tocaCambiarFoto": "Toca per canviar la foto",
+  "guardarCambios": "Guardar canvis"
 }

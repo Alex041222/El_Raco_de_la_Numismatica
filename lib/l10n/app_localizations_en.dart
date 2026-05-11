@@ -557,4 +557,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nombreUsuarioEnUso =>
       'The username is already taken, choose another one';
+
+  @override
+  String get venedorsRecomanats => 'Recommended sellers';
+
+  @override
+  String get noVenedors => 'No sellers found yet';
+
+  @override
+  String get venedorsMasRessenyes =>
+      'Sellers with the most positive reviews will appear here';
+
+  @override
+  String get tocaCambiarFoto => 'Tap to change photo';
+
+  @override
+  String get guardarCambios => 'Save changes';
 }

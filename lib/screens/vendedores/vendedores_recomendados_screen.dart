@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/usuario_service.dart';
 import '../../models/usuario_model.dart';
+import '../../l10n/app_localizations.dart';
 
 class VendedoresRecomendadosScreen extends StatelessWidget {
   const VendedoresRecomendadosScreen({super.key});
@@ -13,7 +14,7 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vendedores recomendados'),
+        title: Text(AppLocalizations.of(context)!.venedorsRecomanats),
         automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<List<Usuario>>(
@@ -33,20 +34,20 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
 
           // Sin datos
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.star_outline, size: 80, color: Colors.grey),
-                  SizedBox(height: 16),
+                  const Icon(Icons.star_outline, size: 80, color: Colors.grey),
+                  const SizedBox(height: 16),
                   Text(
-                    'No hay vendedores todavía',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    AppLocalizations.of(context)!.noVenedors,
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Los vendedores con más reseñas positivas\naparecerán aquí',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.venedorsMasRessenyes,
+                    style: const TextStyle(color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -150,7 +151,7 @@ class VendedoresRecomendadosScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${usuario.puntuacion} puntos',
+                                  '${usuario.puntuacion} ${AppLocalizations.of(context)!.reputacion}',
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,

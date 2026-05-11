@@ -180,5 +180,10 @@
   "resenaATiMismo": "No puedes dejarte una reseña a ti mismo",
   "monedaNoDisponible": "Una de las monedas ya no está disponible o ha sido eliminada por el vendedor.",
   "monedaNoExiste": "Una de las monedas ya no existe en la base de datos.",
-  "nombreUsuarioEnUso": "El nombre de usuario ya está elegido, elige otro"
+  "nombreUsuarioEnUso": "El nombre de usuario ya está elegido, elige otro",
+  "venedorsRecomanats": "Vendedores recomendados",
+  "noVenedors": "Aún no hay vendedores",
+  "venedorsMasRessenyes": "Los vendedores con más reseñas positivas aparecerán aquí",
+  "tocaCambiarFoto": "Toca para cambiar la foto",
+  "guardarCambios": "Guardar cambios"
 }

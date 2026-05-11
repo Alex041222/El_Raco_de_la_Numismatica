@@ -180,5 +180,10 @@
   "resenaATiMismo": "You cannot leave a review for yourself",
   "monedaNoDisponible": "One of the coins is no longer available or was removed by the seller.",
   "monedaNoExiste": "One of the coins no longer exists in the database.",
-  "nombreUsuarioEnUso": "The username is already taken, choose another one"
+  "nombreUsuarioEnUso": "The username is already taken, choose another one",
+  "venedorsRecomanats": "Recommended sellers",
+  "noVenedors": "No sellers found yet",
+  "venedorsMasRessenyes": "Sellers with the most positive reviews will appear here",
+  "tocaCambiarFoto": "Tap to change photo",
+  "guardarCambios": "Save changes"
 }
