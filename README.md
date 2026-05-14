@@ -66,8 +66,6 @@ flutter build apk --release
 ```
 
 ## 📂 Documentació Addicional
-Podeu trobar documentació més detallada a la carpeta `documentacio/`:
-- [Document de Disseny](documentacio/Document_de_disseny_APP.md)
-- [Manual d'Usuari](documentacio/Manual_d_usuari.md)
+Podeu trobar documentació més detallada a la carpeta `documentacio`:
 
 
